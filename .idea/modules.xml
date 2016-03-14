@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Connecto.iml" filepath="$PROJECT_DIR$/Connecto.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junctio.iml" filepath="$PROJECT_DIR$/junctio.iml" />
     </modules>
   </component>
 </project>

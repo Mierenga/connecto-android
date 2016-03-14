@@ -1,5 +1,7 @@
 package eskimwier.connecto;
 
+import android.util.Log;
+
 import java.util.Random;
 
 /**
@@ -33,20 +35,26 @@ public class Junction {
             case BLANK:
                 break;
             case CROSS:
-                this.west = true;
-                // fall through
-            case FORK:
+                this.north = true;
+                this.south = true;
                 this.east = true;
-                // fall through
+                this.west = true;
+                break;
             case STRAIGHT:
                 this.south = true;
-                // fall through
+                this.north = true;
+                break;
+            case FORK:
+                this.north = true;
+                this.west = true;
+                this.east = true;
+                break;
             case TERMINAL:
                 this.north = true;
                 break;
             case TURN:
                 this.north = true;
-                this.east = true;
+                this.west= true;
                 break;
         }
     }
@@ -86,6 +94,23 @@ public class Junction {
         return false;
     }
 
+    public static Junction create(String str) {
+        switch (str) {
+            case "TURN":
+                return new Junction(Type.TURN);
+            case "STRAT":
+                return new Junction(Type.STRAIGHT);
+            case "TERM":
+                return new Junction(Type.TERMINAL);
+            case "FORK":
+                return new Junction(Type.FORK);
+            case "CROSS":
+                return new Junction(Type.FORK);
+            default:
+                return new Junction(Type.BLANK);
+        }
+    }
+
     private int getTrueSides()
     {
         int trueSides = 0;
@@ -97,12 +122,14 @@ public class Junction {
     }
     public void rotateJunctionClockwise()
     {
+        Log.d("OLD", this.north + ", " + this.south + ", " + this.east + ", " + this.west+ ", ");
         boolean prevNorth = this.north;
         boolean prevSouth = this.south;
         this.north = this.west;
         this.south = this.east;
         this.east = prevNorth;
         this.west = prevSouth;
+        Log.d("NEW", this.north + ", " + this.south + ", " + this.east + ", " + this.west+ ", ");
     }
 
 }
