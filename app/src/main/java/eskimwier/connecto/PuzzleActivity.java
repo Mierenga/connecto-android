@@ -2,9 +2,12 @@ package eskimwier.connecto;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
@@ -14,24 +17,30 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class PuzzleActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public static final int PUZZLES_AVAILABLE = 2;
+    public static final int PUZZLES_AVAILABLE = 11;
     RelativeLayout background;
     TableLayout gameTable;
     TextView winText;
     Button newGame;
     Button prevGame;
-    int lastPuzzle = 0;
+    Stack<Integer> puzzles = new Stack<>();
+    boolean solved = false;
     Random random = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
+
+
+        setupStatusBar();
 
         background = (RelativeLayout) findViewById(R.id.background);
         newGame = (Button) findViewById(R.id.new_game_button);
@@ -55,39 +64,62 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
 
     }
+    void setupStatusBar() {
+        Window window = this.getWindow();
+        if (window != null) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.black));
+        }
+    }
 
     private void setupLastGame() {
-        setupGame(lastPuzzle);
+        puzzles.pop();
+        setupGame(puzzles.peek());
+
     }
     private void setupNewGame() {
-        setupGame(random.nextInt(PUZZLES_AVAILABLE));
+        puzzles.push(random.nextInt(PUZZLES_AVAILABLE));
+        setupGame(puzzles.peek());
     }
     private void setupGame(int puzzle) {
-
-        setGameColor(SquareView.Color.BLUE);
+        winText.setVisibility(View.INVISIBLE);
+        solved = false;
+        setGameColor(SquareView.Color.AZTEC);
         gameTable.removeAllViews();
         Context c = getApplicationContext();
+
+        HashMap<Integer, String[]> grid = new HashMap<>();
+
         try {
             Log.d("Relative Path", new File("").getAbsolutePath());
-            //Scanner in = new Scanner(new File("app/src/main/assets/puzzles/puzzle" + r));
             Scanner in = new Scanner(getAssets().open("puzzles/puzzle" + puzzle));
-            int rowNum = 0;
+
+            int i = 0;
             while (in.hasNextLine()) {
                 String rowStr = in.nextLine();
                 if (!rowStr.trim().isEmpty()) {
-                    TableRow tableRow = new TableRow(c);
                     String[] items = rowStr.split("\\s+");
-                    if (rowNum == 0)
-                        SquareView.startNewGame(items.length, SquareView.Color.BLUE);
-                    for (int colNum = 0; colNum < items.length; colNum++) {
-                        int itemSize = gameTable.getWidth()/items.length;
-                        SquareView square = new SquareView(c, Junction.create(items[colNum].trim()), rowNum, colNum);
-                        square.setOnClickListener(this);
-                        tableRow.addView(square, itemSize, itemSize);
-                    }
-                    gameTable.addView(tableRow);
-                    rowNum++;
+                    grid.put(i, items);
                 }
+                i++;
+            }
+
+            int rowNum = grid.entrySet().size();
+            int colNum = grid.get(0).length;
+
+            SquareView.startNewGame(rowNum, colNum, SquareView.Color.AZTEC);
+            int itemSize = gameTable.getWidth()/colNum;
+
+            for (i = 0; i < rowNum; i++) {
+                TableRow tableRow = new TableRow(c);
+                for (int j = 0; j < colNum; j++) {
+                    String input = (grid.get(i))[j].trim();
+                    SquareView square = new SquareView(c, Junction.create(input), i, j);
+                    square.setOnClickListener(this);
+                    tableRow.addView(square, itemSize, itemSize);
+                }
+                gameTable.addView(tableRow);
             }
 
         } catch (FileNotFoundException fnfe) {
@@ -104,13 +136,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
         try {
 
-            ((SquareView) v).rotateClockwise();
-            if (checkForJunctio()) {
-                gameComplete();
-            } else {
+            ((SquareView) v).rotateClockwise(90);
 
-                setGameColor(SquareView.Color.BLUE);
-                winText.setVisibility(View.INVISIBLE);
+            if (checkForJunctio() || solved) {
+                togglePuzzleSolved();
             }
 
         } catch (ClassCastException cce) {
@@ -127,6 +156,12 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case BLUE:
                 colorId = R.color.blue;
+                break;
+            case NEWS:
+                colorId = R.color.teal;
+                break;
+            case AZTEC:
+                colorId = R.color.teal;
                 break;
             default:
                 colorId = R.color.colorPrimaryDark;
@@ -153,9 +188,15 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
         return false;
     }
-    private void gameComplete() {
-
-        setGameColor(SquareView.Color.ORANGE);
-        winText.setVisibility(View.VISIBLE);
+    private void togglePuzzleSolved() {
+        if (!this.solved) {
+            this.solved = true;
+            setGameColor(SquareView.Color.NEWS);
+            winText.setVisibility(View.VISIBLE);
+        } else {
+            this.solved = false;
+            setGameColor(SquareView.Color.AZTEC);
+            winText.setVisibility(View.INVISIBLE);
+        }
     }
 }

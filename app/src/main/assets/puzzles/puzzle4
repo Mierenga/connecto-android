@@ -1,0 +1,10 @@
+term	turn	turn	turn	turn	term
+blank	turn	fork	fork	turn	blank
+turn	strat	turn	turn	strat	turn
+fork	term	fork	fork	term	fork
+strat	blank	fork	fork	blank	strat
+fork	strat	turn	turn	strat	fork
+turn	turn	turn	turn	turn	turn
+blank	strat	turn	turn	strat	blank
+term	fork	term	term	fork	term
+turn	turn	blank	blank	turn	turn

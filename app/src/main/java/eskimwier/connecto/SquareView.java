@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.util.Random;
+
 /**
  * Created by eskimwier on 3/12/16.
  */
@@ -12,34 +14,34 @@ public class SquareView extends ImageView {
     public enum Color {
         BLACK_AND_WHITE,
         BLUE,
-        ORANGE
+        ORANGE,
+        AZTEC,
+        NEWS
     }
 
 
     private static Color _color = Color.BLACK_AND_WHITE;
-    private static int _gridSize = 0;
+    private static int _gridWidth = 0;
+    private static int _gridHeight = 0;
     private static SquareView[][] _grid;
+    private static Random _random = new Random();
 
 
     private Junction _junction = new Junction();
     private int _row = 0;
     private int _col = 0;
 
-    public static void startNewGame(int size) {
-        _gridSize = size;
-        _grid = new SquareView[_gridSize][_gridSize];
-    }
-
-    public static void startNewGame(int size, Color color) {
-        _gridSize = size;
-        _grid = new SquareView[_gridSize][_gridSize];
+    public static void startNewGame(int rows, int cols, Color color) {
+        _gridWidth = cols;
+        _gridHeight = rows;
+        _grid = new SquareView[_gridHeight][_gridWidth];
         _color = color;
     }
 
     public static void setGridColor(Color color) {
         _color = color;
-        for (int i = 0; i < _gridSize; i++) {
-            for (int j = 0; j < _gridSize; j++) {
+        for (int i = 0; i < _gridHeight; i++) {
+            for (int j = 0; j < _gridWidth; j++) {
                 if (_grid[i][j] != null)
                     _grid[i][j].updateInstanceColor();
             }
@@ -58,26 +60,27 @@ public class SquareView extends ImageView {
     }
 
     private void checkGridSize() throws  InstantiationException {
-        if (_gridSize < 1)
-            throw new InstantiationException("Must use static method setGridSize()" +
+        if (_gridHeight < 1 || _gridWidth < 1)
+            throw new InstantiationException("Must use static method startNewGame()" +
                     "to set a positive grid size before instantiation of class members");
     }
 
     private void setJunction(Junction junction) {
         _junction = junction;
         setImageResource(findDrawableFromJunction());
+        //rotateClockwise(_random.nextInt(4) * 90);
     }
 
     private void updateInstanceColor() {
         setImageResource(findDrawableFromJunction());
     }
 
-    public void rotateClockwise()
+    public void rotateClockwise(int degrees)
     {
-        _junction.rotateJunctionClockwise();
+        _junction.rotateJunctionClockwise(degrees);
         setPivotX(getWidth()/2);
         setPivotY(getHeight()/2);
-        setRotation(getRotation() + 90);
+        setRotation(getRotation() + degrees);
     }
     public boolean checkAllNeighbors() {
         Log.d("(" + _row + ", " + _col + ")", "Checking neighbors:");
@@ -175,6 +178,10 @@ public class SquareView extends ImageView {
                 return findBlueDrawable();
             case ORANGE:
                 return findOrangeDrawable();
+            case AZTEC:
+                return findAztecDrawable();
+            case NEWS:
+                return findNewsDrawable();
             default:
                 return findBlackAndWhiteDrawable();
         }
@@ -242,6 +249,46 @@ public class SquareView extends ImageView {
         }
     }
 
+    private int findAztecDrawable()
+    {
+        switch (_junction.type)
+        {
+            case BLANK:
+                return R.drawable.blank_aztec;
+            case TERMINAL:
+                return R.drawable.terminal_aztec;
+            case STRAIGHT:
+                return R.drawable.straight_aztec;
+            case TURN:
+                return R.drawable.turn_aztec;
+            case FORK:
+                return R.drawable.fork_aztec;
+            case CROSS:
+                return R.drawable.cross_aztec;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 
+    private int findNewsDrawable()
+    {
+        switch (_junction.type)
+        {
+            case BLANK:
+                return R.drawable.blank_news;
+            case TERMINAL:
+                return R.drawable.terminal_news;
+            case STRAIGHT:
+                return R.drawable.straight_news;
+            case TURN:
+                return R.drawable.turn_news;
+            case FORK:
+                return R.drawable.fork_news;
+            case CROSS:
+                return R.drawable.cross_news;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 
 }

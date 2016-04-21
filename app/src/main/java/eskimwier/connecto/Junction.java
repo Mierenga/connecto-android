@@ -1,13 +1,13 @@
 package eskimwier.connecto;
 
-import android.util.Log;
-
 import java.util.Random;
 
 /**
  * Created by eskimwier on 3/12/16.
  */
 public class Junction {
+
+    static Random random = new Random();
 
     public enum Type {
         BLANK,
@@ -20,7 +20,6 @@ public class Junction {
 
     public static Type getRandomJuncType()
     {
-        Random random = new Random();
         return (Type.values())[random.nextInt((Type.values()).length)];
     }
 
@@ -95,7 +94,7 @@ public class Junction {
     }
 
     public static Junction create(String str) {
-        switch (str) {
+        switch (str.toUpperCase()) {
             case "TURN":
                 return new Junction(Type.TURN);
             case "STRAT":
@@ -105,9 +104,11 @@ public class Junction {
             case "FORK":
                 return new Junction(Type.FORK);
             case "CROSS":
-                return new Junction(Type.FORK);
-            default:
+                return new Junction(Type.CROSS);
+            case "BLANK":
                 return new Junction(Type.BLANK);
+            default:
+                throw new IllegalArgumentException("Invalid Junction.Type [" + str + "]");
         }
     }
 
@@ -120,16 +121,16 @@ public class Junction {
         if (this.west) trueSides++;
         return trueSides;
     }
-    public void rotateJunctionClockwise()
-    {
-        Log.d("OLD", this.north + ", " + this.south + ", " + this.east + ", " + this.west+ ", ");
-        boolean prevNorth = this.north;
-        boolean prevSouth = this.south;
-        this.north = this.west;
-        this.south = this.east;
-        this.east = prevNorth;
-        this.west = prevSouth;
-        Log.d("NEW", this.north + ", " + this.south + ", " + this.east + ", " + this.west+ ", ");
+    public void rotateJunctionClockwise(int degrees) {
+
+        for (int i = 0; i < degrees; i+=90) {
+            boolean prevNorth = this.north;
+            boolean prevSouth = this.south;
+            this.north = this.west;
+            this.south = this.east;
+            this.east = prevNorth;
+            this.west = prevSouth;
+        }
     }
 
 }

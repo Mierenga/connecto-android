@@ -1,0 +1,10 @@
+term	turn	strat	turn	turn	term	term	fork	turn
+turn	cross	fork	turn	turn	fork	strat	cross	fork
+term	strat	strat	turn	strat	fork	fork	turn	term
+strat	fork	fork	strat	turn	strat	fork	strat	turn
+fork	cross	fork	fork	cross	fork	strat	fork	fork
+turn	turn	strat	strat	turn	fork	turn	turn	turn
+turn	strat	fork	fork	strat	turn	strat	turn	turn
+fork	turn	strat	strat	term	fork	fork	fork	strat
+strat	fork	fork	term	strat	strat	turn	fork	turn
+term	turn	fork	term	term	turn	fork	strat	term

@@ -8,5 +8,7 @@
 
     <color name="orange">#f0bc79</color>
     <color name="blue">#4932f9</color>
+    <color name="black">#000000</color>
+    <color name="teal">#019caa</color>
 
 </resources>
