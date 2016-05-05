@@ -89,6 +89,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+
     void setupStatusBar() {
         Window window = this.getWindow();
         if (window != null) {
@@ -149,7 +150,12 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         // TODO:  NOT WORKING POSSIBLY DUE TO PIVOT POINT NOT BEING AVAILABLE
-        //performRotations();
+        gameTable.post(new Runnable() {
+            @Override
+            public void run() {
+                performRotations();
+            }
+        });
     }
 
     private void performRotations() {
