@@ -7,19 +7,26 @@
     tools:context="eskimwier.connecto.PuzzleActivity">
 
 
-    <TableLayout
+    <FrameLayout
+        android:id="@+id/game_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/game_table"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true">
-
-    </TableLayout>
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="450dp">
+        <TableLayout
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/game_table"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true">
+        </TableLayout>
+    </FrameLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/game_table"
+        android:layout_below="@+id/game_frame"
         android:id="@+id/win_text"
         android:textSize="16sp"
         android:text="Puzzle Complete"

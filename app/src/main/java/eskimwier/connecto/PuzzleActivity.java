@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,20 +20,23 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Stack;
 
 public class PuzzleActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final int PUZZLES_AVAILABLE = 11;
     RelativeLayout background;
+    View gameFrame;
     TableLayout gameTable;
     TextView winText;
     Button newGame;
     Button prevGame;
-    Stack<Integer> puzzles = new Stack<>();
+    Deque<Integer> puzzles = new ArrayDeque<>();
     boolean solved = false;
     Random random = new Random();
 
@@ -43,6 +49,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         setupStatusBar();
 
         background = (RelativeLayout) findViewById(R.id.background);
+        gameFrame = findViewById(R.id.game_frame);
         newGame = (Button) findViewById(R.id.new_game_button);
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,9 +68,27 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         gameTable = (TableLayout) findViewById(R.id.game_table);
 
         setupNewGame();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        //inflater.inflate(R.menu.game_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            //case R.id.
+            default:
+                super.onOptionsItemSelected(item);
+
+        }
+        return true;
 
     }
+
     void setupStatusBar() {
         Window window = this.getWindow();
         if (window != null) {
@@ -74,8 +99,9 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupLastGame() {
-        puzzles.pop();
-        setupGame(puzzles.peek());
+        if (!puzzles.isEmpty()) {
+            setupGame(puzzles.pop());
+        }
 
     }
     private void setupNewGame() {
@@ -89,35 +115,27 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         gameTable.removeAllViews();
         Context c = getApplicationContext();
 
-        HashMap<Integer, String[]> grid = new HashMap<>();
 
         try {
             Log.d("Relative Path", new File("").getAbsolutePath());
             Scanner in = new Scanner(getAssets().open("puzzles/puzzle" + puzzle));
 
-            int i = 0;
-            while (in.hasNextLine()) {
-                String rowStr = in.nextLine();
-                if (!rowStr.trim().isEmpty()) {
-                    String[] items = rowStr.split("\\s+");
-                    grid.put(i, items);
-                }
-                i++;
-            }
+            List<String[]> grid = parseInputFile(in);
 
-            int rowNum = grid.entrySet().size();
+            int rowNum = grid.size();
             int colNum = grid.get(0).length;
 
             SquareView.startNewGame(rowNum, colNum, SquareView.Color.AZTEC);
-            int itemSize = gameTable.getWidth()/colNum;
+            int tileSize = getTileSize(rowNum, colNum);
 
-            for (i = 0; i < rowNum; i++) {
+
+            for (int i = 0; i < rowNum; i++) {
                 TableRow tableRow = new TableRow(c);
                 for (int j = 0; j < colNum; j++) {
                     String input = (grid.get(i))[j].trim();
-                    SquareView square = new SquareView(c, Junction.create(input), i, j);
+                    SquareView square = new SquareView(c, Junction.create(input), i, j, tileSize);
                     square.setOnClickListener(this);
-                    tableRow.addView(square, itemSize, itemSize);
+                    tableRow.addView(square, tileSize, tileSize);
                 }
                 gameTable.addView(tableRow);
             }
@@ -129,6 +147,44 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         } catch (InstantiationException ie) {
             Log.d("Unknown Grid Size", "Must specify grid size prior to instantiation of object");
         }
+
+        // TODO:  NOT WORKING POSSIBLY DUE TO PIVOT POINT NOT BEING AVAILABLE
+        //performRotations();
+    }
+
+    private void performRotations() {
+
+        for (int i = 0; i < gameTable.getChildCount(); i++) {
+            TableRow row = (TableRow) gameTable.getChildAt(i);
+            for (int j = 0; j < row.getChildCount(); j++) {
+                int rotations = random.nextInt(4);
+                for (int r = 0; r < rotations; r++) {
+                    row.getChildAt(j).performClick();
+                }
+            }
+        }
+    }
+
+    private List<String[]> parseInputFile(Scanner scanner) {
+
+        List<String[]> grid = new ArrayList<>();
+        String row;
+        for (int i = 0; scanner.hasNextLine(); i++) {
+            row = scanner.nextLine();
+            if (!row.trim().isEmpty()) {
+                String[] items = row.split("\\s+");
+                grid.add(i, items);
+            }
+        }
+        return grid;
+    }
+
+    private int getTileSize(int rowNum, int colNum) {
+        int tileSize = gameFrame.getWidth()/ colNum;
+        if (tileSize * rowNum > gameFrame.getHeight()) {
+            tileSize = gameFrame.getHeight()/ rowNum;
+        }
+        return tileSize;
     }
 
     @Override

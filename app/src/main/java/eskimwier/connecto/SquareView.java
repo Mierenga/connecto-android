@@ -49,7 +49,7 @@ public class SquareView extends ImageView {
 
     }
 
-    public SquareView(Context context, Junction junction, int row, int col) throws InstantiationException {
+    public SquareView(Context context, Junction junction, int row, int col, int size) throws InstantiationException {
         super(context);
         checkGridSize();
 
@@ -57,6 +57,7 @@ public class SquareView extends ImageView {
         _row = row;
         _col = col;
         _grid[row][col] = this;
+
     }
 
     private void checkGridSize() throws  InstantiationException {
@@ -68,7 +69,6 @@ public class SquareView extends ImageView {
     private void setJunction(Junction junction) {
         _junction = junction;
         setImageResource(findDrawableFromJunction());
-        //rotateClockwise(_random.nextInt(4) * 90);
     }
 
     private void updateInstanceColor() {

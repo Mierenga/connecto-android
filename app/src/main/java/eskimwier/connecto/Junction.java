@@ -124,12 +124,12 @@ public class Junction {
     public void rotateJunctionClockwise(int degrees) {
 
         for (int i = 0; i < degrees; i+=90) {
-            boolean prevNorth = this.north;
-            boolean prevSouth = this.south;
+
+            boolean north = this.north;
             this.north = this.west;
+            this.west = this.south;
             this.south = this.east;
-            this.east = prevNorth;
-            this.west = prevSouth;
+            this.east = north;
         }
     }
 
