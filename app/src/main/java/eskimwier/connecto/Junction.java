@@ -25,6 +25,7 @@ public class Junction {
 
     public boolean north, east, south, west;
     public Type type;
+    public int rotations = 0;
 
     public Junction(Type type)
     {
@@ -121,16 +122,16 @@ public class Junction {
         if (this.west) trueSides++;
         return trueSides;
     }
-    public void rotateJunctionClockwise(int degrees) {
+    public int rotateJunctionClockwise(int degrees) {
 
         for (int i = 0; i < degrees; i+=90) {
-
             boolean north = this.north;
             this.north = this.west;
             this.west = this.south;
             this.south = this.east;
             this.east = north;
+            this.rotations++;
         }
+        return this.rotations % 4;
     }
-
 }

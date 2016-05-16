@@ -2,9 +2,12 @@ package eskimwier.connecto;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
-
-import java.util.Random;
 
 /**
  * Created by eskimwier on 3/12/16.
@@ -16,6 +19,8 @@ public class SquareView extends ImageView {
         BLUE,
         ORANGE,
         AZTEC,
+        MARTIAN,
+        NEON,
         NEWS
     }
 
@@ -24,12 +29,58 @@ public class SquareView extends ImageView {
     private static int _gridWidth = 0;
     private static int _gridHeight = 0;
     private static SquareView[][] _grid;
-    private static Random _random = new Random();
-
 
     private Junction _junction = new Junction();
     private int _row = 0;
     private int _col = 0;
+
+    class Rotation {
+        private int _degrees = 0;
+
+        public void rotate(final int deg, boolean updateModel) {
+
+            final int before = (_degrees);
+            final int after = (before + deg);
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    Animation animation = new RotateAnimation(before, after, getWidth()/2, getHeight()/2);
+                    animation.setInterpolator(new DecelerateInterpolator());
+                    animation.setDuration(300);
+                    animation.setFillAfter(true);
+                    animation.setFillEnabled(true);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override public void onAnimationStart(Animation animation) { }
+                        @Override public void onAnimationRepeat(Animation animation) { }
+                        @Override public void onAnimationEnd(Animation animation) {
+                            Log.d("ROTATION", "before: " + Integer.toString(before) + ", after: " + Integer.toString(after));
+                        }
+                    });
+                    startAnimation(animation);
+                }
+            });
+
+            if (updateModel) {
+                _degrees = reduceDegrees(after);
+            }
+
+        }
+
+        public int get() {
+            return _degrees;
+        }
+
+        private int reduceDegrees(int d) {
+            if (d >= 360) {
+                d -= 360;
+                d = reduceDegrees(d);
+            }
+            return d;
+        }
+
+    }
+    private Rotation _rotationDegrees = new Rotation();
 
     public static void startNewGame(int rows, int cols, Color color) {
         _gridWidth = cols;
@@ -42,11 +93,12 @@ public class SquareView extends ImageView {
         _color = color;
         for (int i = 0; i < _gridHeight; i++) {
             for (int j = 0; j < _gridWidth; j++) {
-                if (_grid[i][j] != null)
+                if (_grid[i][j] != null) {
                     _grid[i][j].updateInstanceColor();
+                    _grid[i][j].setToModelPosition();
+                }
             }
         }
-
     }
 
     public SquareView(Context context, Junction junction, int row, int col, int size) throws InstantiationException {
@@ -57,7 +109,6 @@ public class SquareView extends ImageView {
         _row = row;
         _col = col;
         _grid[row][col] = this;
-
     }
 
     private void checkGridSize() throws  InstantiationException {
@@ -72,58 +123,79 @@ public class SquareView extends ImageView {
     }
 
     private void updateInstanceColor() {
-        setImageResource(findDrawableFromJunction());
+        post(new Runnable() {
+            @Override
+            public void run() {
+
+                setImageResource(findDrawableFromJunction());
+
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Animation shrink = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                        shrink.setInterpolator(new AccelerateDecelerateInterpolator());
+                        shrink.setDuration(250);
+                        startAnimation(shrink);
+                    }
+                });
+
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Animation grow = new ScaleAnimation(0.5f, 1f, 0.5f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                        grow.setInterpolator(new AccelerateDecelerateInterpolator());
+                        grow.setDuration(250);
+                        startAnimation(grow);
+                    }
+                }, 250);
+
+            }
+        });
     }
 
-    public void rotateClockwise(int degrees)
-    {
-        _junction.rotateJunctionClockwise(degrees);
+    public void setToModelPosition() {
         setPivotX(getWidth()/2);
         setPivotY(getHeight()/2);
-        setRotation(getRotation() + degrees);
+        setRotation(_rotationDegrees.get());
     }
+
+    public void rotateClockwise(final int degrees) {
+        _junction.rotateJunctionClockwise(degrees);
+        _rotationDegrees.rotate(degrees, true);
+    }
+
     public boolean checkAllNeighbors() {
-        Log.d("(" + _row + ", " + _col + ")", "Checking neighbors:");
         if (!checkEasternNeighbor()) return false;
         if (!checkWesternNeighbor()) return false;
         if (!checkNorthernNeighbor()) return false;
         if (!checkSouthernNeighbor()) return false;
-        Log.d("ALL", "true");
         return true;
     }
 
     private boolean checkEasternNeighbor() {
         if (this._junction.east == getEasternJunction()) {
-            Log.d("Eastern", "true");
             return true;
         }
-        Log.d("Eastern", "false");
         return false;
     }
     private boolean checkWesternNeighbor() {
         if (this._junction.west == getWesternJunction()) {
-            Log.d("Western", "true");
             return true;
         }
-        Log.d("Western", "false");
         return false;
     }
 
     private boolean checkNorthernNeighbor() {
         if (this._junction.north == getNorthernJunction()) {
-            Log.d("Northern", "true");
             return true;
         }
-        Log.d("Northern", "false");
         return false;
     }
 
     private boolean checkSouthernNeighbor() {
         if (this._junction.south == getSouthernJunction()) {
-            Log.d("Southern", "true");
             return true;
         }
-        Log.d("Southern", "false");
         return false;
     }
 
@@ -131,10 +203,8 @@ public class SquareView extends ImageView {
         try {
             int col = this._col + 1;
             Boolean val = _grid[this._row][col]._junction.west;
-            Log.d("E", val.toString());
             return val;
         } catch (IndexOutOfBoundsException e) {
-            Log.d("E", "false");
             return false;
         }
     }
@@ -142,10 +212,8 @@ public class SquareView extends ImageView {
         try {
             int col = this._col - 1;
             Boolean val = _grid[this._row][col]._junction.east;
-            Log.d("W", val.toString());
             return val;
         } catch (IndexOutOfBoundsException e) {
-            Log.d("W", "false");
             return false;
         }
     }
@@ -153,10 +221,8 @@ public class SquareView extends ImageView {
         try {
             int row = this._row - 1;
             Boolean val = _grid[row][this._col]._junction.south;
-            Log.d("N", val.toString());
             return val;
         } catch (IndexOutOfBoundsException e) {
-            Log.d("N", "false");
             return false;
         }
     }
@@ -164,10 +230,8 @@ public class SquareView extends ImageView {
         try {
             int row = this._row + 1;
             Boolean val = _grid[row][this._col]._junction.north;
-            Log.d("S", val.toString());
             return val;
         } catch (IndexOutOfBoundsException e) {
-            Log.d("S", "false");
             return false;
         }
     }
@@ -180,6 +244,10 @@ public class SquareView extends ImageView {
                 return findOrangeDrawable();
             case AZTEC:
                 return findAztecDrawable();
+            case MARTIAN:
+                return findMartianDrawable();
+            case NEON:
+                return findNeonDrawable();
             case NEWS:
                 return findNewsDrawable();
             default:
@@ -265,6 +333,48 @@ public class SquareView extends ImageView {
                 return R.drawable.fork_aztec;
             case CROSS:
                 return R.drawable.cross_aztec;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    private int findMartianDrawable()
+    {
+        switch (_junction.type)
+        {
+            case BLANK:
+                return R.drawable.blank_martian;
+            case TERMINAL:
+                return R.drawable.term_martian;
+            case STRAIGHT:
+                return R.drawable.strat_martian;
+            case TURN:
+                return R.drawable.turn_martian;
+            case FORK:
+                return R.drawable.fork_martian;
+            case CROSS:
+                return R.drawable.cross_martian;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    private int findNeonDrawable()
+    {
+        switch (_junction.type)
+        {
+            case BLANK:
+                return R.drawable.blank_neon;
+            case TERMINAL:
+                return R.drawable.term_neon;
+            case STRAIGHT:
+                return R.drawable.strat_neon;
+            case TURN:
+                return R.drawable.turn_neon;
+            case FORK:
+                return R.drawable.fork_neon;
+            case CROSS:
+                return R.drawable.cross_neon;
             default:
                 throw new IllegalArgumentException();
         }

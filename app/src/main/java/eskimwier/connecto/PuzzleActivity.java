@@ -11,13 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -33,31 +34,34 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     RelativeLayout background;
     View gameFrame;
     TableLayout gameTable;
-    TextView winText;
-    Button newGame;
-    Button prevGame;
+    View winText;
+    View newGame, prevGame;
     Deque<Integer> puzzles = new ArrayDeque<>();
     boolean solved = false;
     Random random = new Random();
+
+    static class GameColors {
+        public static SquareView.Color incomplete = SquareView.Color.MARTIAN;
+        public static SquareView.Color complete = SquareView.Color.NEON;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
 
-
         setupStatusBar();
 
         background = (RelativeLayout) findViewById(R.id.background);
         gameFrame = findViewById(R.id.game_frame);
-        newGame = (Button) findViewById(R.id.new_game_button);
+        newGame = findViewById(R.id.new_game_button);
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setupNewGame();
             }
         });
-        prevGame = (Button) findViewById(R.id.last_game_button);
+        prevGame = findViewById(R.id.last_game_button);
         prevGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,23 +114,27 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         setupGame(puzzles.peek());
     }
     private void setupGame(int puzzle) {
+
+
         winText.setVisibility(View.INVISIBLE);
         solved = false;
-        setGameColor(SquareView.Color.AZTEC);
+        setGameColor(GameColors.incomplete);
         gameTable.removeAllViews();
         Context c = getApplicationContext();
 
 
         try {
-            Log.d("Relative Path", new File("").getAbsolutePath());
+            //Log.d("Relative Path", new File("").getAbsolutePath());
             Scanner in = new Scanner(getAssets().open("puzzles/puzzle" + puzzle));
+            // THIS LINE IS FOR TESTING WITH SIMPLE PUZZLE:
+            //Scanner in = new Scanner(getAssets().open("puzzles/puzzle0"));
 
             List<String[]> grid = parseInputFile(in);
 
             int rowNum = grid.size();
             int colNum = grid.get(0).length;
 
-            SquareView.startNewGame(rowNum, colNum, SquareView.Color.AZTEC);
+            SquareView.startNewGame(rowNum, colNum, GameColors.incomplete);
             int tileSize = getTileSize(rowNum, colNum);
 
 
@@ -149,7 +157,6 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             Log.d("Unknown Grid Size", "Must specify grid size prior to instantiation of object");
         }
 
-        // TODO:  NOT WORKING POSSIBLY DUE TO PIVOT POINT NOT BEING AVAILABLE
         gameTable.post(new Runnable() {
             @Override
             public void run() {
@@ -164,9 +171,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             TableRow row = (TableRow) gameTable.getChildAt(i);
             for (int j = 0; j < row.getChildCount(); j++) {
                 int rotations = random.nextInt(4);
-                for (int r = 0; r < rotations; r++) {
-                    row.getChildAt(j).performClick();
-                }
+                ((SquareView) row.getChildAt(j)).rotateClockwise(90*rotations);
             }
         }
     }
@@ -196,16 +201,18 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
 
-        try {
+        if (!this.solved) {
+            try {
 
-            ((SquareView) v).rotateClockwise(90);
+                ((SquareView) v).rotateClockwise(90);
 
-            if (checkForJunctio() || solved) {
-                togglePuzzleSolved();
+                if (checkForJunctio() || solved) {
+                    togglePuzzleSolved();
+                }
+
+            } catch (ClassCastException cce) {
+                Log.d("Unknown View in onClick", "View is not of expected type SquareView");
             }
-
-        } catch (ClassCastException cce) {
-            Log.d("Unknown View in onClick", "View is not of expected type SquareView");
         }
 
     }
@@ -225,10 +232,17 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             case AZTEC:
                 colorId = R.color.teal;
                 break;
+            case MARTIAN:
+                colorId = R.color.martian_dark;
+                break;
+            case NEON:
+                colorId = R.color.martian_light;
+                break;
             default:
                 colorId = R.color.colorPrimaryDark;
         }
         background.setBackgroundColor(getResources().getColor(colorId));
+        getSupportActionBar().setBackgroundDrawable(getDrawable(colorId));
 
     }
 
@@ -246,18 +260,27 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             return true;
 
         } catch (ClassCastException cce) {
-            Log.d("TableLayout Child", "Child is not of expected type SquareView");
+            Log.d("TableLayout Child", "ClassCastException: Child is not of expected type SquareView");
         }
         return false;
     }
     private void togglePuzzleSolved() {
         if (!this.solved) {
             this.solved = true;
-            setGameColor(SquareView.Color.NEWS);
+            setGameColor(GameColors.complete);
             winText.setVisibility(View.VISIBLE);
+            winText.post(new Runnable() {
+                @Override
+                public void run() {
+                    Animation animation = new RotateAnimation(-20, 20, winText.getWidth()/2, winText.getHeight()/2);
+                    animation.setInterpolator(new CycleInterpolator(4));
+                    animation.setDuration(1200);
+                    winText.startAnimation(animation);
+                }
+            });
         } else {
             this.solved = false;
-            setGameColor(SquareView.Color.AZTEC);
+            setGameColor(GameColors.incomplete);
             winText.setVisibility(View.INVISIBLE);
         }
     }

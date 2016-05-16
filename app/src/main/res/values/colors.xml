@@ -10,5 +10,7 @@
     <color name="blue">#4932f9</color>
     <color name="black">#000000</color>
     <color name="teal">#019caa</color>
+    <color name="martian_dark">#1c530f</color>
+    <color name="martian_light">#00b522</color>
 
 </resources>
