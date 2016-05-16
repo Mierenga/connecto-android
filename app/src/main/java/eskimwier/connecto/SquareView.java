@@ -134,7 +134,7 @@ public class SquareView extends ImageView {
                     public void run() {
                         Animation shrink = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                         shrink.setInterpolator(new AccelerateDecelerateInterpolator());
-                        shrink.setDuration(250);
+                        shrink.setDuration(500);
                         startAnimation(shrink);
                     }
                 });
@@ -144,10 +144,10 @@ public class SquareView extends ImageView {
                     public void run() {
                         Animation grow = new ScaleAnimation(0.5f, 1f, 0.5f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                         grow.setInterpolator(new AccelerateDecelerateInterpolator());
-                        grow.setDuration(250);
+                        grow.setDuration(500);
                         startAnimation(grow);
                     }
-                }, 250);
+                }, 500);
 
             }
         });
