@@ -163,7 +163,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupAutogenGame() {
-        Autogen autogen = new Autogen(8, 12, SquareView.Color.MARTIAN, this);
+        Autogen autogen = new Autogen(4, 6, SquareView.Color.MARTIAN, this);
         autogen.start();
 
         performRotations();
@@ -244,7 +244,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 colorId = R.color.black;
                 break;
             case NEON:
-                colorId = R.color.martian_light;
+                colorId = R.color.black;
                 break;
             default:
                 colorId = R.color.colorPrimaryDark;
