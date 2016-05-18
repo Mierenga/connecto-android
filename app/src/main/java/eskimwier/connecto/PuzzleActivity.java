@@ -58,7 +58,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setupNewGame();
+                //setupNewGame();
+                setupAutogenGame();
             }
         });
         prevGame = findViewById(R.id.last_game_button);
@@ -71,7 +72,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         winText = (TextView) findViewById(R.id.win_text);
         gameTable = (TableLayout) findViewById(R.id.game_table);
 
-        setupNewGame();
+        //setupNewGame();
+        setupAutogenGame();
     }
 
     @Override
@@ -157,23 +159,29 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             Log.d("Unknown Grid Size", "Must specify grid size prior to instantiation of object");
         }
 
-        gameTable.post(new Runnable() {
-            @Override
-            public void run() {
-                performRotations();
-            }
-        });
+        performRotations();
+    }
+
+    private void setupAutogenGame() {
+        Autogen autogen = new Autogen(8, 12, SquareView.Color.MARTIAN, this);
+        autogen.start();
+
+        performRotations();
     }
 
     private void performRotations() {
-
-        for (int i = 0; i < gameTable.getChildCount(); i++) {
-            TableRow row = (TableRow) gameTable.getChildAt(i);
-            for (int j = 0; j < row.getChildCount(); j++) {
-                int rotations = random.nextInt(4);
-                ((SquareView) row.getChildAt(j)).rotateClockwise(90*rotations);
+        gameTable.post(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < gameTable.getChildCount(); i++) {
+                    TableRow row = (TableRow) gameTable.getChildAt(i);
+                    for (int j = 0; j < row.getChildCount(); j++) {
+                        int rotations = random.nextInt(4);
+                        ((SquareView) row.getChildAt(j)).rotateClockwise(90*rotations);
+                    }
+                }
             }
-        }
+        });
     }
 
     private List<String[]> parseInputFile(Scanner scanner) {
@@ -190,7 +198,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         return grid;
     }
 
-    private int getTileSize(int rowNum, int colNum) {
+    public int getTileSize(int rowNum, int colNum) {
         int tileSize = gameFrame.getWidth()/ colNum;
         if (tileSize * rowNum > gameFrame.getHeight()) {
             tileSize = gameFrame.getHeight()/ rowNum;
@@ -233,7 +241,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 colorId = R.color.teal;
                 break;
             case MARTIAN:
-                colorId = R.color.martian_dark;
+                colorId = R.color.black;
                 break;
             case NEON:
                 colorId = R.color.martian_light;

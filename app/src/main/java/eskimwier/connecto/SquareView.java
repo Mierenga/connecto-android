@@ -23,6 +23,12 @@ public class SquareView extends ImageView {
         NEON,
         NEWS
     }
+    public enum Compass {
+        N,
+        S,
+        E,
+        W
+    }
 
 
     private static Color _color = Color.BLACK_AND_WHITE;
@@ -172,27 +178,69 @@ public class SquareView extends ImageView {
         return true;
     }
 
-    private boolean checkEasternNeighbor() {
+    public boolean checkNeighbor(Compass compass) {
+        switch (compass) {
+            case N:
+                return checkNorthernNeighbor();
+            case E:
+                return checkEasternNeighbor();
+            case S:
+                return checkSouthernNeighbor();
+            case W:
+                return checkWesternNeighbor();
+        }
+        return false;
+    }
+    public boolean checkEasternNeighbor(boolean doCheck) {
+        if (!doCheck) {
+            return true;
+        } else {
+            return checkEasternNeighbor();
+        }
+    }
+    public boolean checkWesternNeighbor(boolean doCheck) {
+        if (!doCheck) {
+            return true;
+        } else {
+            return checkWesternNeighbor();
+        }
+    }
+    public boolean checkNorthernNeighbor(boolean doCheck) {
+        if (!doCheck) {
+            return true;
+        } else {
+            return checkNorthernNeighbor();
+        }
+    }
+    public boolean checkSouthernNeighbor(boolean doCheck) {
+        if (!doCheck) {
+            return true;
+        } else {
+            return checkSouthernNeighbor();
+        }
+    }
+
+    public boolean checkEasternNeighbor() {
         if (this._junction.east == getEasternJunction()) {
             return true;
         }
         return false;
     }
-    private boolean checkWesternNeighbor() {
+    public boolean checkWesternNeighbor() {
         if (this._junction.west == getWesternJunction()) {
             return true;
         }
         return false;
     }
 
-    private boolean checkNorthernNeighbor() {
+    public boolean checkNorthernNeighbor() {
         if (this._junction.north == getNorthernJunction()) {
             return true;
         }
         return false;
     }
 
-    private boolean checkSouthernNeighbor() {
+    public boolean checkSouthernNeighbor() {
         if (this._junction.south == getSouthernJunction()) {
             return true;
         }

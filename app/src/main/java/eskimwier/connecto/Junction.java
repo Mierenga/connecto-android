@@ -12,16 +12,32 @@ public class Junction {
     public enum Type {
         BLANK,
         TERMINAL,
-        STRAIGHT,
+        TURN,
         FORK,
-        CROSS,
-        TURN
+        STRAIGHT,
+        CROSS
     }
 
-    public static Type getRandomJuncType()
-    {
-        return (Type.values())[random.nextInt((Type.values()).length)];
+    public enum JuncPosition {
+        CORNER,
+        EDGE,
+        INNER
     }
+
+    public static Type getRandomJuncType(JuncPosition pos)
+    {
+        switch (pos) {
+            case INNER:
+                return (Type.values())[random.nextInt(6)];
+            case EDGE:
+                return (Type.values())[random.nextInt(5)];
+            case CORNER:
+                return (Type.values())[random.nextInt(3)];
+            default:
+                return Type.BLANK;
+        }
+    }
+
 
     public boolean north, east, south, west;
     public Type type;
@@ -112,6 +128,26 @@ public class Junction {
                 throw new IllegalArgumentException("Invalid Junction.Type [" + str + "]");
         }
     }
+
+    public static Junction create(int i) {
+        switch (i) {
+            case 0:
+                return new Junction(Type.BLANK);
+            case 1:
+                return new Junction(Type.TERMINAL);
+            case 2:
+                return new Junction(Type.TURN);
+            case 3:
+                return new Junction(Type.FORK);
+            case 4:
+                return new Junction(Type.STRAIGHT);
+            case 5:
+                return new Junction(Type.CROSS);
+            default:
+                throw new IllegalArgumentException("Invalid Junction.Type. " + i + " is out of range");
+        }
+    }
+
 
     private int getTrueSides()
     {
