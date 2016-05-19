@@ -298,6 +298,7 @@ public class Autogen {
         }
         */
         return true;
+        //return random.nextBoolean();
     }
 
     private boolean getEdgeChance(Junction.Type type) {
@@ -314,6 +315,7 @@ public class Autogen {
         }
         */
         return true;
+        //return random.nextBoolean();
     }
 
     private boolean getInnerChance() {

@@ -12,5 +12,7 @@
     <color name="teal">#019caa</color>
     <color name="martian_dark">#1c530f</color>
     <color name="martian_light">#00b522</color>
+    <color name="spectro_connecto">#706b2b</color>
+    <color name="dark_gray">#333333</color>
 
 </resources>

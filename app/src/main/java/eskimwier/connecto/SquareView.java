@@ -21,7 +21,8 @@ public class SquareView extends ImageView {
         AZTEC,
         MARTIAN,
         NEON,
-        NEWS
+        NEWS,
+        SPECTRO
     }
     public enum Compass {
         N,
@@ -298,10 +299,33 @@ public class SquareView extends ImageView {
                 return findNeonDrawable();
             case NEWS:
                 return findNewsDrawable();
+            case SPECTRO:
+                return findSpectroDrawable();
             default:
                 return findBlackAndWhiteDrawable();
         }
 
+    }
+
+    private int findSpectroDrawable()
+    {
+        switch (_junction.type)
+        {
+            case BLANK:
+                return R.drawable.blank_spectro;
+            case TERMINAL:
+                return R.drawable.term_spectro;
+            case STRAIGHT:
+                return R.drawable.strat_spectro;
+            case TURN:
+                return R.drawable.turn_spectro;
+            case FORK:
+                return R.drawable.fork_spectro;
+            case CROSS:
+                return R.drawable.cross_spectro;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     private int findBlueDrawable()

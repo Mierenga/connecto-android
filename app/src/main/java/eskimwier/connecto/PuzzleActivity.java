@@ -41,8 +41,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     Random random = new Random();
 
     static class GameColors {
-        public static SquareView.Color incomplete = SquareView.Color.MARTIAN;
-        public static SquareView.Color complete = SquareView.Color.NEON;
+        public static SquareView.Color incomplete = SquareView.Color.SPECTRO;
+        public static SquareView.Color complete = SquareView.Color.SPECTRO;
     }
 
     @Override
@@ -163,7 +163,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupAutogenGame() {
-        Autogen autogen = new Autogen(4, 6, SquareView.Color.MARTIAN, this);
+        setGameColor(GameColors.incomplete);
+        Autogen autogen = new Autogen(2, 2, GameColors.incomplete, this);
         autogen.start();
 
         performRotations();
@@ -235,7 +236,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 colorId = R.color.blue;
                 break;
             case NEWS:
-                colorId = R.color.teal;
+                colorId = R.color.black;
                 break;
             case AZTEC:
                 colorId = R.color.teal;
@@ -245,6 +246,9 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case NEON:
                 colorId = R.color.black;
+                break;
+            case SPECTRO:
+                colorId = R.color.dark_gray;
                 break;
             default:
                 colorId = R.color.colorPrimaryDark;
@@ -280,8 +284,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             winText.post(new Runnable() {
                 @Override
                 public void run() {
-                    Animation animation = new RotateAnimation(-20, 20, winText.getWidth()/2, winText.getHeight()/2);
-                    animation.setInterpolator(new CycleInterpolator(4));
+                    Animation animation = new RotateAnimation(-5, 5, winText.getWidth()/2, winText.getHeight()/2);
+                    animation.setInterpolator(new CycleInterpolator(2));
                     animation.setDuration(1200);
                     winText.startAnimation(animation);
                 }
