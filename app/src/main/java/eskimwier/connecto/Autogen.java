@@ -17,10 +17,10 @@ public class Autogen {
     private int rowNum;
     private int colNum;
     private int tileSize;
-    private SquareView.Color color;
+    private GameColors.Color color;
     private PuzzleActivity activity;
 
-    public Autogen(int w, int h, SquareView.Color color, PuzzleActivity activity) {
+    public Autogen(int w, int h, GameColors.Color color, PuzzleActivity activity) {
 
         activity.gameTable.removeAllViews();
         activity.solved = false;

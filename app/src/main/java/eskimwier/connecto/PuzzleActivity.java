@@ -6,7 +6,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -40,10 +39,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     boolean solved = false;
     Random random = new Random();
 
-    static class GameColors {
-        public static SquareView.Color incomplete = SquareView.Color.SPECTRO;
-        public static SquareView.Color complete = SquareView.Color.SPECTRO;
-    }
+    DifficultyMode currentDifficulty = DifficultyMode.Easy;
+    GameColors gameColors = GameColors.Spectro;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,15 +77,38 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        //inflater.inflate(R.menu.game_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            //case R.id.
+            case R.id.easy_mode:
+                currentDifficulty = DifficultyMode.Easy;
+                item.setChecked(true);
+                setupAutogenGame();
+                break;
+            case R.id.med_mode:
+                currentDifficulty = DifficultyMode.Intermediate;
+                item.setChecked(true);
+                setupAutogenGame();
+                break;
+            case R.id.hard_mode:
+                currentDifficulty = DifficultyMode.Advanced;
+                item.setChecked(true);
+                setupAutogenGame();
+                break;
+            case R.id.martian_color:
+                gameColors = GameColors.Martian;
+                setGameColor(gameColors.getIncompleteColor(), false);
+                setupAutogenGame();
+                break;
+            case R.id.spectro_color:
+                gameColors = GameColors.Spectro;
+                setGameColor(gameColors.getCompleteColor(), false);
+                setupAutogenGame();
+                break;
             default:
                 super.onOptionsItemSelected(item);
 
@@ -120,7 +142,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
         winText.setVisibility(View.INVISIBLE);
         solved = false;
-        setGameColor(GameColors.incomplete);
+        setGameColor(gameColors.getIncompleteColor(), false);
         gameTable.removeAllViews();
         Context c = getApplicationContext();
 
@@ -136,7 +158,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             int rowNum = grid.size();
             int colNum = grid.get(0).length;
 
-            SquareView.startNewGame(rowNum, colNum, GameColors.incomplete);
+            SquareView.startNewGame(rowNum, colNum, gameColors.getCompleteColor());
             int tileSize = getTileSize(rowNum, colNum);
 
 
@@ -163,8 +185,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupAutogenGame() {
-        setGameColor(GameColors.incomplete);
-        Autogen autogen = new Autogen(2, 2, GameColors.incomplete, this);
+        setGameColor(gameColors.getIncompleteColor(), false);
+        Autogen autogen = new Autogen(currentDifficulty.getWidth(),
+                                        currentDifficulty.getHeight(),
+                                        gameColors.getIncompleteColor(), this);
         autogen.start();
 
         performRotations();
@@ -225,8 +249,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
 
     }
-    private void setGameColor(SquareView.Color color) {
-        SquareView.setGridColor(color);
+    private void setGameColor(GameColors.Color color, boolean animate) {
+        SquareView.setGridColor(color, animate);
         int colorId;
         switch (color) {
             case ORANGE:
@@ -279,7 +303,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     private void togglePuzzleSolved() {
         if (!this.solved) {
             this.solved = true;
-            setGameColor(GameColors.complete);
+            setGameColor(gameColors.getCompleteColor(), true);
             winText.setVisibility(View.VISIBLE);
             winText.post(new Runnable() {
                 @Override
@@ -292,7 +316,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             });
         } else {
             this.solved = false;
-            setGameColor(GameColors.incomplete);
+            setGameColor(gameColors.getIncompleteColor(), false);
             winText.setVisibility(View.INVISIBLE);
         }
     }

@@ -1,0 +1,55 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="eskimwier.connecto.PuzzleActivity">
+    <group
+        android:id="@+id/difficulty_group"
+        android:checkableBehavior="single"
+        android:enabled="true"
+        android:visible="true">
+        <item
+            android:id="@+id/easy_mode"
+            android:orderInCategory="1"
+            android:title="Easy"
+            android:checked="true"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/med_mode"
+            android:orderInCategory="2"
+            android:title="Intermediate"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/hard_mode"
+            android:orderInCategory="3"
+            android:title="Advanced"
+            app:showAsAction="never" />
+    </group>
+    <group
+        android:id="@+id/game_color_group"
+        android:enabled="true"
+        android:visible="true">
+        <item
+            android:title="Choose Skin..."
+            android:id="@+id/color_menu"
+            app:showAsAction="never"
+            >
+            <menu>
+
+                <item
+                    android:id="@+id/spectro_color"
+                    android:icon="@drawable/cross_spectro"
+                    android:orderInCategory="4"
+                    android:title="Spectro"
+                    app:showAsAction="always" />
+                <item
+                    android:id="@+id/martian_color"
+                    android:icon="@drawable/cross_martian"
+                    android:orderInCategory="5"
+                    android:title="Martian"
+                    app:showAsAction="always" />
+            </menu>
+        </item>
+
+    </group>
+
+</menu>

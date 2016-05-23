@@ -1,9 +1,9 @@
 package eskimwier.connecto;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
@@ -14,16 +14,6 @@ import android.widget.ImageView;
  */
 public class SquareView extends ImageView {
 
-    public enum Color {
-        BLACK_AND_WHITE,
-        BLUE,
-        ORANGE,
-        AZTEC,
-        MARTIAN,
-        NEON,
-        NEWS,
-        SPECTRO
-    }
     public enum Compass {
         N,
         S,
@@ -32,7 +22,7 @@ public class SquareView extends ImageView {
     }
 
 
-    private static Color _color = Color.BLACK_AND_WHITE;
+    private static GameColors.Color _color = GameColors.Color.BLACK_AND_WHITE;
     private static int _gridWidth = 0;
     private static int _gridHeight = 0;
     private static SquareView[][] _grid;
@@ -57,13 +47,6 @@ public class SquareView extends ImageView {
                     animation.setDuration(300);
                     animation.setFillAfter(true);
                     animation.setFillEnabled(true);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override public void onAnimationStart(Animation animation) { }
-                        @Override public void onAnimationRepeat(Animation animation) { }
-                        @Override public void onAnimationEnd(Animation animation) {
-                            Log.d("ROTATION", "before: " + Integer.toString(before) + ", after: " + Integer.toString(after));
-                        }
-                    });
                     startAnimation(animation);
                 }
             });
@@ -89,23 +72,31 @@ public class SquareView extends ImageView {
     }
     private Rotation _rotationDegrees = new Rotation();
 
-    public static void startNewGame(int rows, int cols, Color color) {
+    public static void startNewGame(int rows, int cols, GameColors.Color color) {
         _gridWidth = cols;
         _gridHeight = rows;
         _grid = new SquareView[_gridHeight][_gridWidth];
         _color = color;
     }
 
-    public static void setGridColor(Color color) {
-        _color = color;
+    public static void setGridColor(GameColors.Color color, boolean animate) {
+
+        if (!animate && _color == color) return;
+
         for (int i = 0; i < _gridHeight; i++) {
             for (int j = 0; j < _gridWidth; j++) {
                 if (_grid[i][j] != null) {
-                    _grid[i][j].updateInstanceColor();
                     _grid[i][j].setToModelPosition();
+                    if (color != _color) {
+                        _grid[i][j].setImageResource(GameColors.findDrawable(color, _grid[i][j]._junction));
+                    }
+                    if (animate) {
+                        _grid[i][j].shrinkGrow();
+                    }
                 }
             }
         }
+        _color = color;
     }
 
     public SquareView(Context context, Junction junction, int row, int col, int size) throws InstantiationException {
@@ -126,36 +117,28 @@ public class SquareView extends ImageView {
 
     private void setJunction(Junction junction) {
         _junction = junction;
-        setImageResource(findDrawableFromJunction());
+        setImageResource(GameColors.findDrawable(_color, _junction));
     }
 
-    private void updateInstanceColor() {
+    private void shrinkGrow() {
         post(new Runnable() {
             @Override
             public void run() {
 
-                setImageResource(findDrawableFromJunction());
+                Animation shrink = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                shrink.setDuration(500);
 
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Animation shrink = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                        shrink.setInterpolator(new AccelerateDecelerateInterpolator());
-                        shrink.setDuration(500);
-                        startAnimation(shrink);
-                    }
-                });
+                Animation grow = new ScaleAnimation(1f, 2f, 1f, 2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                grow.setDuration(500);
+                grow.setStartOffset(500);
 
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Animation grow = new ScaleAnimation(0.5f, 1f, 0.5f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                        grow.setInterpolator(new AccelerateDecelerateInterpolator());
-                        grow.setDuration(500);
-                        startAnimation(grow);
-                    }
-                }, 500);
+                AnimationSet set = new AnimationSet(true);
+                set.setInterpolator(new AccelerateDecelerateInterpolator());
+                set.addAnimation(shrink);
+                set.addAnimation(grow);
+                set.setDuration(1000);
 
+                startAnimation(set);
             }
         });
     }
@@ -285,192 +268,6 @@ public class SquareView extends ImageView {
         }
     }
 
-    private int findDrawableFromJunction() {
-        switch (_color) {
-            case BLUE:
-                return findBlueDrawable();
-            case ORANGE:
-                return findOrangeDrawable();
-            case AZTEC:
-                return findAztecDrawable();
-            case MARTIAN:
-                return findMartianDrawable();
-            case NEON:
-                return findNeonDrawable();
-            case NEWS:
-                return findNewsDrawable();
-            case SPECTRO:
-                return findSpectroDrawable();
-            default:
-                return findBlackAndWhiteDrawable();
-        }
 
-    }
-
-    private int findSpectroDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_spectro;
-            case TERMINAL:
-                return R.drawable.term_spectro;
-            case STRAIGHT:
-                return R.drawable.strat_spectro;
-            case TURN:
-                return R.drawable.turn_spectro;
-            case FORK:
-                return R.drawable.fork_spectro;
-            case CROSS:
-                return R.drawable.cross_spectro;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private int findBlueDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_blue;
-            case TERMINAL:
-                return R.drawable.terminal_blue;
-            case STRAIGHT:
-                return R.drawable.straight_blue;
-            case TURN:
-                return R.drawable.turn_blue;
-            case FORK:
-                return R.drawable.fork_blue;
-            case CROSS:
-                return R.drawable.cross_blue;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-    private int findBlackAndWhiteDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank;
-            case TERMINAL:
-                return R.drawable.terminal;
-            case STRAIGHT:
-                return R.drawable.straight;
-            case TURN:
-                return R.drawable.turn;
-            case FORK:
-                return R.drawable.fork;
-            case CROSS:
-                return R.drawable.cross;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-    private int findOrangeDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_orange;
-            case TERMINAL:
-                return R.drawable.terminal_orange;
-            case STRAIGHT:
-                return R.drawable.straight_orange;
-            case TURN:
-                return R.drawable.turn_orange;
-            case FORK:
-                return R.drawable.fork_orange;
-            case CROSS:
-                return R.drawable.cross_orange;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private int findAztecDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_aztec;
-            case TERMINAL:
-                return R.drawable.terminal_aztec;
-            case STRAIGHT:
-                return R.drawable.straight_aztec;
-            case TURN:
-                return R.drawable.turn_aztec;
-            case FORK:
-                return R.drawable.fork_aztec;
-            case CROSS:
-                return R.drawable.cross_aztec;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private int findMartianDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_martian;
-            case TERMINAL:
-                return R.drawable.term_martian;
-            case STRAIGHT:
-                return R.drawable.strat_martian;
-            case TURN:
-                return R.drawable.turn_martian;
-            case FORK:
-                return R.drawable.fork_martian;
-            case CROSS:
-                return R.drawable.cross_martian;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private int findNeonDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_neon;
-            case TERMINAL:
-                return R.drawable.term_neon;
-            case STRAIGHT:
-                return R.drawable.strat_neon;
-            case TURN:
-                return R.drawable.turn_neon;
-            case FORK:
-                return R.drawable.fork_neon;
-            case CROSS:
-                return R.drawable.cross_neon;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private int findNewsDrawable()
-    {
-        switch (_junction.type)
-        {
-            case BLANK:
-                return R.drawable.blank_news;
-            case TERMINAL:
-                return R.drawable.terminal_news;
-            case STRAIGHT:
-                return R.drawable.straight_news;
-            case TURN:
-                return R.drawable.turn_news;
-            case FORK:
-                return R.drawable.fork_news;
-            case CROSS:
-                return R.drawable.cross_news;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
 
 }
