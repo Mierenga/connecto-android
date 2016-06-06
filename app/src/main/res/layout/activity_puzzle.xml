@@ -4,14 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/background"
+    android:gravity="center"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="15dp"
     tools:context="eskimwier.connecto.PuzzleActivity">
 
 
     <FrameLayout
         android:id="@+id/game_frame"
         android:layout_width="match_parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:layout_height="450dp">
         <TableLayout
             android:layout_gravity="center"
@@ -24,28 +26,20 @@
     </FrameLayout>
 
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_below="@id/game_frame"
         android:orientation="horizontal"
-        android:gravity="center"
+        android:gravity="top|center"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:src="@android:drawable/ic_media_previous"
-            android:id="@+id/last_game_button"
-            android:layout_marginEnd="10dp"
-            />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/game_frame"
             android:gravity="center"
             android:layout_centerHorizontal="true"
             android:id="@+id/win_text"
-            android:textSize="16sp"
+            android:textSize="22sp"
             android:text="CONNECTO"
             android:textAllCaps="true"
             android:drawableEnd="@android:drawable/radiobutton_off_background"
@@ -54,12 +48,5 @@
             android:textColor="#FFFFFF"
             android:visibility="invisible"
             />
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:src="@android:drawable/ic_media_next"
-            android:id="@+id/new_game_button"
-            android:layout_marginStart="10dp"
-            />
-    </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>

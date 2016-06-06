@@ -1,18 +1,25 @@
 package eskimwier.connecto;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -34,15 +41,12 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     View gameFrame;
     TableLayout gameTable;
     View winText;
-    View newGame, prevGame;
     Deque<Integer> puzzles = new ArrayDeque<>();
     boolean solved = false;
     Random random = new Random();
 
-    DifficultyMode currentDifficulty = DifficultyMode.Easy;
+    DifficultyMode currentDifficulty = DifficultyMode.Simple;
     GameColors gameColors = GameColors.Spectro;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,25 +57,11 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
         background = (RelativeLayout) findViewById(R.id.background);
         gameFrame = findViewById(R.id.game_frame);
-        newGame = findViewById(R.id.new_game_button);
-        newGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //setupNewGame();
-                setupAutogenGame();
-            }
-        });
-        prevGame = findViewById(R.id.last_game_button);
-        prevGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setupLastGame();
-            }
-        });
-        winText = (TextView) findViewById(R.id.win_text);
+        winText = findViewById(R.id.win_text);
         gameTable = (TableLayout) findViewById(R.id.game_table);
 
-        //setupNewGame();
+        setGameTableHeight();
+
         setupAutogenGame();
     }
 
@@ -84,6 +74,14 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.new_game:
+                setupAutogenGame();
+                break;
+            case R.id.simple_mode:
+                currentDifficulty = DifficultyMode.Simple;
+                item.setChecked(true);
+                setupAutogenGame();
+                break;
             case R.id.easy_mode:
                 currentDifficulty = DifficultyMode.Easy;
                 item.setChecked(true);
@@ -117,13 +115,29 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    void setGameTableHeight()
+    {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        ViewGroup.LayoutParams params = gameFrame.getLayoutParams();
+        final TypedArray styledAttributes = getTheme().obtainStyledAttributes(
+                new int[]{android.R.attr.actionBarSize});
+        int actionBarSize = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        params.height = size.y - 220 - actionBarSize;
+        params.width = size.x - 30;
+        gameFrame.setLayoutParams(new RelativeLayout.LayoutParams(params));
+
+    }
 
     void setupStatusBar() {
         Window window = this.getWindow();
         if (window != null) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.black));
+            //window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.black));
         }
     }
 
@@ -278,7 +292,9 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 colorId = R.color.colorPrimaryDark;
         }
         background.setBackgroundColor(getResources().getColor(colorId));
-        getSupportActionBar().setBackgroundDrawable(getDrawable(colorId));
+        //getSupportActionBar().setBackgroundDrawable(getDrawable(colorId));
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), colorId, null);
+        getSupportActionBar().setBackgroundDrawable(drawable);
 
     }
 

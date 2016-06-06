@@ -5,6 +5,7 @@ package eskimwier.connecto;
  */
 public class DifficultyMode {
 
+    final public static DifficultyMode Simple = new DifficultyMode(2,2);
     final public static DifficultyMode Easy = new DifficultyMode(3,4);
     final public static DifficultyMode Intermediate = new DifficultyMode(6,8);
     final public static DifficultyMode Advanced = new DifficultyMode(8,12);

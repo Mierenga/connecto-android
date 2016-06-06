@@ -8,19 +8,30 @@
         android:enabled="true"
         android:visible="true">
         <item
-            android:id="@+id/easy_mode"
+            android:id="@+id/new_game"
+            android:icon="@android:drawable/ic_menu_rotate"
+            app:showAsAction="always"
+            android:title="New Game"
+            />
+        <item
+            android:id="@+id/simple_mode"
             android:orderInCategory="1"
-            android:title="Easy"
+            android:title="Simple"
             android:checked="true"
             app:showAsAction="never" />
         <item
-            android:id="@+id/med_mode"
+            android:id="@+id/easy_mode"
             android:orderInCategory="2"
+            android:title="Easy"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/med_mode"
+            android:orderInCategory="3"
             android:title="Intermediate"
             app:showAsAction="never" />
         <item
             android:id="@+id/hard_mode"
-            android:orderInCategory="3"
+            android:orderInCategory="4"
             android:title="Advanced"
             app:showAsAction="never" />
     </group>
@@ -38,13 +49,13 @@
                 <item
                     android:id="@+id/spectro_color"
                     android:icon="@drawable/cross_spectro"
-                    android:orderInCategory="4"
+                    android:orderInCategory="5"
                     android:title="Spectro"
                     app:showAsAction="always" />
                 <item
                     android:id="@+id/martian_color"
                     android:icon="@drawable/cross_martian"
-                    android:orderInCategory="5"
+                    android:orderInCategory="6"
                     android:title="Martian"
                     app:showAsAction="always" />
             </menu>
