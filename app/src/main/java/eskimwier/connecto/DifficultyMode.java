@@ -25,4 +25,9 @@ public class DifficultyMode {
     public int getHeight() {
         return height;
     }
+
+    public int getArea()
+    {
+        return width * height;
+    }
 }
