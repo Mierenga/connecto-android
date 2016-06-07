@@ -1,9 +1,7 @@
 package eskimwier.connecto;
 
 import android.os.Handler;
-import android.widget.Chronometer;
 
-import java.util.Timer;
 
 /**
  * Created by eskimwier on 6/5/16.
@@ -36,7 +34,8 @@ public class ScoreKeeper {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-
+                puzzleTime++;
+                handler.postDelayed(this, 1000);
             }
         };
         handler.postDelayed(runnable, 1000);
@@ -49,8 +48,7 @@ public class ScoreKeeper {
 
     }
 
-    public void puzzleCompleted()
-    {
+    public void puzzleCompleted() {
 
         totalScore += gameScore;
         gameRotations = 0;

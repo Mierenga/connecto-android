@@ -206,6 +206,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         autogen.start();
 
         performRotations();
+
     }
 
     private void performRotations() {
