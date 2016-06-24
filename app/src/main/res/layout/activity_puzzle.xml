@@ -8,7 +8,7 @@
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
     android:paddingTop="15dp"
-    tools:context="eskimwier.connecto.PuzzleActivity">
+    tools:context=".GamePlay.PuzzleActivity">
 
 
     <FrameLayout
@@ -47,6 +47,36 @@
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:visibility="invisible"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Game: "
+            android:textColor="#FFFFFF"
+            android:layout_toStartOf="@+id/game_score"
+            />
+        <TextView
+            android:id="@+id/game_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:layout_alignParentEnd="true"
+            />
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Session: "
+            android:textColor="#FFFFFF"
+            android:layout_toStartOf="@+id/total_score"
+             android:layout_below="@+id/game_score"
+            />
+        <TextView
+            android:id="@+id/total_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/game_score"
             />
     </RelativeLayout>
 </RelativeLayout>

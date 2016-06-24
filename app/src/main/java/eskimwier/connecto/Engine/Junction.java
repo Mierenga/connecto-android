@@ -1,4 +1,4 @@
-package eskimwier.connecto;
+package eskimwier.connecto.Engine;
 
 import java.util.Random;
 

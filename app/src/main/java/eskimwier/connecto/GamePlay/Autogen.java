@@ -1,10 +1,13 @@
-package eskimwier.connecto;
+package eskimwier.connecto.GamePlay;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.TableRow;
 
 import java.util.Random;
+
+import eskimwier.connecto.Engine.Junction;
+import eskimwier.connecto.Engine.SquareView;
 
 /**
  * Created by mike on 5/16/2016.
@@ -19,6 +22,10 @@ public class Autogen {
     private int tileSize;
     private GameColors.Color color;
     private PuzzleActivity activity;
+
+    public Autogen(DifficultyMode difficultyMode, GameColors.Color color, PuzzleActivity activity) {
+        this(difficultyMode.getWidth(), difficultyMode.getHeight(), color, activity);
+    }
 
     public Autogen(int w, int h, GameColors.Color color, PuzzleActivity activity) {
 

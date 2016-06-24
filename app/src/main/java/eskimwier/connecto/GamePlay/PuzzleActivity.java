@@ -1,11 +1,9 @@
-package eskimwier.connecto;
+package eskimwier.connecto.GamePlay;
 
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,34 +17,32 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
+
+import eskimwier.connecto.Campaign.ScoreKeeper;
+import eskimwier.connecto.Engine.SquareView;
+import eskimwier.connecto.R;
 
 public class PuzzleActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public static final int PUZZLES_AVAILABLE = 11;
     RelativeLayout background;
     View gameFrame;
     TableLayout gameTable;
     View winText;
-    Deque<Integer> puzzles = new ArrayDeque<>();
+    TextView gameScoreText;
+    TextView totalScoreText;
+
     boolean solved = false;
     Random random = new Random();
 
     DifficultyMode currentDifficulty = DifficultyMode.Simple;
     GameColors gameColors = GameColors.Spectro;
+    ScoreKeeper scoreKeeper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +55,8 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         gameFrame = findViewById(R.id.game_frame);
         winText = findViewById(R.id.win_text);
         gameTable = (TableLayout) findViewById(R.id.game_table);
+        gameScoreText = (TextView) findViewById(R.id.game_score);
+        totalScoreText = (TextView) findViewById(R.id.total_score);
 
         setGameTableHeight();
 
@@ -141,75 +139,18 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void setupLastGame() {
-        if (!puzzles.isEmpty()) {
-            setupGame(puzzles.pop());
-        }
-
-    }
-    private void setupNewGame() {
-        puzzles.push(random.nextInt(PUZZLES_AVAILABLE));
-        setupGame(puzzles.peek());
-    }
-    private void setupGame(int puzzle) {
-
-
-        winText.setVisibility(View.INVISIBLE);
-        solved = false;
-        setGameColor(gameColors.getIncompleteColor(), false);
-        gameTable.removeAllViews();
-        Context c = getApplicationContext();
-
-
-        try {
-            //Log.d("Relative Path", new File("").getAbsolutePath());
-            Scanner in = new Scanner(getAssets().open("puzzles/puzzle" + puzzle));
-            // THIS LINE IS FOR TESTING WITH SIMPLE PUZZLE:
-            //Scanner in = new Scanner(getAssets().open("puzzles/puzzle0"));
-
-            List<String[]> grid = parseInputFile(in);
-
-            int rowNum = grid.size();
-            int colNum = grid.get(0).length;
-
-            SquareView.startNewGame(rowNum, colNum, gameColors.getCompleteColor());
-            int tileSize = getTileSize(rowNum, colNum);
-
-
-            for (int i = 0; i < rowNum; i++) {
-                TableRow tableRow = new TableRow(c);
-                for (int j = 0; j < colNum; j++) {
-                    String input = (grid.get(i))[j].trim();
-                    SquareView square = new SquareView(c, Junction.create(input), i, j, tileSize);
-                    square.setOnClickListener(this);
-                    tableRow.addView(square, tileSize, tileSize);
-                }
-                gameTable.addView(tableRow);
-            }
-
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ie) {
-            ie.printStackTrace();
-        } catch (InstantiationException ie) {
-            Log.d("Unknown Grid Size", "Must specify grid size prior to instantiation of object");
-        }
-
-        performRotations();
-    }
-
     private void setupAutogenGame() {
         setGameColor(gameColors.getIncompleteColor(), false);
-        Autogen autogen = new Autogen(currentDifficulty.getWidth(),
-                                        currentDifficulty.getHeight(),
-                                        gameColors.getIncompleteColor(), this);
+        Autogen autogen = new Autogen(currentDifficulty, gameColors.getIncompleteColor(), this);
         autogen.start();
 
         performRotations();
 
+        scoreKeeper = new ScoreKeeper(currentDifficulty);
+
     }
 
-    private void performRotations() {
+    void performRotations() {
         gameTable.post(new Runnable() {
             @Override
             public void run() {
@@ -223,28 +164,14 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
-    private List<String[]> parseInputFile(Scanner scanner) {
-
-        List<String[]> grid = new ArrayList<>();
-        String row;
-        for (int i = 0; scanner.hasNextLine(); i++) {
-            row = scanner.nextLine();
-            if (!row.trim().isEmpty()) {
-                String[] items = row.split("\\s+");
-                grid.add(i, items);
-            }
-        }
-        return grid;
-    }
-
     public int getTileSize(int rowNum, int colNum) {
-        int tileSize = gameFrame.getWidth()/ colNum;
+        int tileSize = gameFrame.getWidth() / colNum;
         if (tileSize * rowNum > gameFrame.getHeight()) {
-            tileSize = gameFrame.getHeight()/ rowNum;
+            tileSize = gameFrame.getHeight() / rowNum;
         }
         return tileSize;
     }
+
 
     @Override
     public void onClick(View v) {
@@ -253,6 +180,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
             try {
 
                 ((SquareView) v).rotateClockwise(90);
+                gameScoreText.setText(Integer.toString(scoreKeeper.tileRotated()));
 
                 if (checkForJunctio() || solved) {
                     togglePuzzleSolved();
@@ -264,7 +192,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
 
     }
-    private void setGameColor(GameColors.Color color, boolean animate) {
+    void setGameColor(GameColors.Color color, boolean animate) {
         SquareView.setGridColor(color, animate);
         int colorId;
         switch (color) {
@@ -320,21 +248,28 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     private void togglePuzzleSolved() {
         if (!this.solved) {
             this.solved = true;
+            gameScoreText.setText(Integer.toString(scoreKeeper.puzzleCompleted()));
+            totalScoreText.setText(Integer.toString(ScoreKeeper.getTotalScore()));
             setGameColor(gameColors.getCompleteColor(), true);
-            winText.setVisibility(View.VISIBLE);
-            winText.post(new Runnable() {
-                @Override
-                public void run() {
-                    Animation animation = new RotateAnimation(-5, 5, winText.getWidth()/2, winText.getHeight()/2);
-                    animation.setInterpolator(new CycleInterpolator(2));
-                    animation.setDuration(1200);
-                    winText.startAnimation(animation);
-                }
-            });
+            winTextAnimation();
+
         } else {
             this.solved = false;
             setGameColor(gameColors.getIncompleteColor(), false);
             winText.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void winTextAnimation() {
+        winText.setVisibility(View.VISIBLE);
+        winText.post(new Runnable() {
+            @Override
+            public void run() {
+                Animation animation = new RotateAnimation(-5, 5, winText.getWidth()/2, winText.getHeight()/2);
+                animation.setInterpolator(new CycleInterpolator(2));
+                animation.setDuration(1200);
+                winText.startAnimation(animation);
+            }
+        });
     }
 }

@@ -1,4 +1,7 @@
-package eskimwier.connecto;
+package eskimwier.connecto.GamePlay;
+
+import eskimwier.connecto.Engine.Junction;
+import eskimwier.connecto.R;
 
 /**
  * Created by mike on 5/22/2016.

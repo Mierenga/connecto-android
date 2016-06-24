@@ -1,4 +1,4 @@
-package eskimwier.connecto;
+package eskimwier.connecto.Campaign;
 
 /**
  * Created by mike on 5/16/2016.

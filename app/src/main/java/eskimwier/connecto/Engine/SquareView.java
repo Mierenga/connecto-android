@@ -1,4 +1,4 @@
-package eskimwier.connecto;
+package eskimwier.connecto.Engine;
 
 import android.content.Context;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -8,6 +8,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+
+import eskimwier.connecto.GamePlay.GameColors;
 
 /**
  * Created by eskimwier on 3/12/16.

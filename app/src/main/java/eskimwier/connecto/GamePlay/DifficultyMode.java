@@ -1,4 +1,4 @@
-package eskimwier.connecto;
+package eskimwier.connecto.GamePlay;
 
 /**
  * Created by mike on 5/22/2016.
@@ -29,5 +29,21 @@ public class DifficultyMode {
     public int getArea()
     {
         return width * height;
+    }
+
+    public double getScoreMultiplier() {
+
+
+        if (this==DifficultyMode.Simple) {
+            return 0.7;
+        } else if (this==DifficultyMode.Easy) {
+            return 0.5;
+        } else if (this==DifficultyMode.Intermediate) {
+            return 0.3;
+        } else if (this==DifficultyMode.Advanced) {
+            return 0.25;
+        } else {
+            return 1;
+        }
     }
 }
