@@ -1,6 +1,8 @@
 package eskimwier.connecto.GamePlay;
 
+import android.animation.ObjectAnimator;
 import android.content.res.TypedArray;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -8,19 +10,26 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.CycleInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -43,6 +52,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     DifficultyMode currentDifficulty = DifficultyMode.Simple;
     GameColors gameColors = GameColors.Spectro;
     ScoreKeeper scoreKeeper;
+    UserPrefs userPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         totalScoreText = (TextView) findViewById(R.id.total_score);
 
         setGameTableHeight();
+
+        userPrefs = new UserPrefs(getApplicationContext());
+        scoreKeeper.setUserPrefs(userPrefs);
+        totalScoreText.setText(Integer.toString(userPrefs.getTotalScore()));
 
         setupAutogenGame();
     }
@@ -130,6 +144,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+
     void setupStatusBar() {
         Window window = this.getWindow();
         if (window != null) {
@@ -140,7 +155,9 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupAutogenGame() {
+        gameScoreText.setText(Integer.toString(0));
         setGameColor(gameColors.getIncompleteColor(), false);
+        startGameAnimation();
         Autogen autogen = new Autogen(currentDifficulty, gameColors.getIncompleteColor(), this);
         autogen.start();
 
@@ -192,10 +209,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         }
 
     }
-    void setGameColor(GameColors.Color color, boolean animate) {
-        SquareView.setGridColor(color, animate);
+    void setGameColor(GameColors.Skin skin, boolean animate) {
+        SquareView.setGridColor(skin, animate);
         int colorId;
-        switch (color) {
+        switch (skin) {
             case ORANGE:
                 colorId = R.color.orange;
                 break;
@@ -221,7 +238,6 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 colorId = R.color.colorPrimaryDark;
         }
         background.setBackgroundColor(getResources().getColor(colorId));
-        //getSupportActionBar().setBackgroundDrawable(getDrawable(colorId));
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), colorId, null);
         getSupportActionBar().setBackgroundDrawable(drawable);
 
@@ -248,9 +264,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     private void togglePuzzleSolved() {
         if (!this.solved) {
             this.solved = true;
-            gameScoreText.setText(Integer.toString(scoreKeeper.puzzleCompleted()));
-            totalScoreText.setText(Integer.toString(ScoreKeeper.getTotalScore()));
-            setGameColor(gameColors.getCompleteColor(), true);
+
             winTextAnimation();
 
         } else {
@@ -261,14 +275,94 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void winTextAnimation() {
+
         winText.setVisibility(View.VISIBLE);
+
+        int score = scoreKeeper.getGameScore();
+        String toastText = (score >= 0 ? "+" + score : score) + " points!";
+        Toast toast = Toast.makeText(this, toastText, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP, 0, 100);
+        toast.show();
+
         winText.post(new Runnable() {
             @Override
             public void run() {
+
+                gameTable.setVisibility(View.INVISIBLE);
+                gameScoreText.setText(Integer.toString(scoreKeeper.puzzleCompleted()));
+                totalScoreText.setText(Integer.toString(ScoreKeeper.getTotalScore()));
+                setGameColor(gameColors.getCompleteColor(), true);
+
+                final Path path = new Path();
+                path.quadTo(50, 50, winText.getX(), winText.getY());
+                ObjectAnimator.ofFloat(winText, View.X, View.Y, path).start();
+
                 Animation animation = new RotateAnimation(-5, 5, winText.getWidth()/2, winText.getHeight()/2);
                 animation.setInterpolator(new CycleInterpolator(2));
                 animation.setDuration(1200);
                 winText.startAnimation(animation);
+
+                gameTable.setVisibility(View.VISIBLE);
+                winGameAnimation();
+
+            }
+        });
+    }
+
+    private void startGameAnimation() {
+        gameTable.post(new Runnable() {
+            @Override
+            public void run() {
+
+                int span = 750;
+
+                Animation rotate = new RotateAnimation(0, 360, gameTable.getWidth()/2, gameTable.getHeight()/2);
+                rotate.setDuration(span);
+
+                Animation shrink = new ScaleAnimation(0.1f, 1f, 0.1f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                shrink.setDuration(span/3);
+
+                Animation grow = new ScaleAnimation(0.5f, 5f, 0.5f, 5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                grow.setStartOffset(span/3);
+                grow.setDuration(span/3);
+
+                Animation shrink2 = new ScaleAnimation(1f, 0.2f, 1f, 0.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                shrink2.setStartOffset(span/2);
+                shrink2.setDuration(span/3);
+                Animation rotate2 = new RotateAnimation(0, 360, gameTable.getWidth()/2, gameTable.getHeight()/2);
+                rotate2.setDuration(span/3);
+                rotate2.setStartOffset(span/2);
+
+                AnimationSet set = new AnimationSet(true);
+                set.setInterpolator(new AccelerateDecelerateInterpolator());
+                set.addAnimation(rotate);
+                set.addAnimation(shrink);
+                set.addAnimation(grow);
+                set.addAnimation(shrink2);
+                set.addAnimation(rotate2);
+                set.setDuration(span);
+
+                gameTable.startAnimation(set);
+
+            }
+        });
+    }
+
+    private void winGameAnimation() {
+        gameTable.post(new Runnable() {
+            @Override
+            public void run() {
+
+                Animation rotate = new RotateAnimation(0, 360, gameTable.getWidth()/2, gameTable.getHeight()/2);
+                rotate.setInterpolator(new AccelerateDecelerateInterpolator());
+                rotate.setDuration(1000);
+
+                AnimationSet set = new AnimationSet(false);
+                set.addAnimation(rotate);
+                set.setDuration(1000);
+
+                gameTable.startAnimation(set);
+
             }
         });
     }

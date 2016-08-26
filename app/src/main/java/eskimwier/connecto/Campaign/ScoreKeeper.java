@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import eskimwier.connecto.GamePlay.DifficultyMode;
+import eskimwier.connecto.GamePlay.UserPrefs;
 
 
 /**
@@ -11,7 +12,7 @@ import eskimwier.connecto.GamePlay.DifficultyMode;
  */
 public class ScoreKeeper {
 
-    private static int totalScore;
+    private static UserPrefs userPrefs;
     private int gameRotations;
     private int gameScore;
     private int puzzleTime;
@@ -20,8 +21,12 @@ public class ScoreKeeper {
 
     public static int getTotalScore()
     {
-        return totalScore;
+        return userPrefs.getTotalScore();
     }
+    public static void setUserPrefs(UserPrefs prefs) {
+        userPrefs = prefs;
+    }
+
 
     public int getGameScore()
     {
@@ -70,7 +75,10 @@ public class ScoreKeeper {
 
     public int puzzleCompleted() {
 
+        int totalScore = userPrefs.getTotalScore();
         totalScore += gameScore;
+        userPrefs.setTotalScore(totalScore);
+
         return gameScore;
 
     }

@@ -1,5 +1,8 @@
 package eskimwier.connecto.GamePlay;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import eskimwier.connecto.Engine.Junction;
 import eskimwier.connecto.R;
 
@@ -8,10 +11,7 @@ import eskimwier.connecto.R;
  */
 public class GameColors {
 
-    final public static GameColors Spectro = new GameColors(Color.SPECTRO, Color.SPECTRO);
-    final public static GameColors Martian = new GameColors(Color.MARTIAN, Color.NEON);
-
-    public enum Color {
+    public enum Skin {
         BLACK_AND_WHITE,
         BLUE,
         ORANGE,
@@ -22,24 +22,27 @@ public class GameColors {
         SPECTRO
     }
 
-    private Color incomplete;
-    private Color complete;
+    public static final GameColors Spectro = new GameColors(Skin.SPECTRO, Skin.SPECTRO);
+    public static final GameColors Martian = new GameColors(Skin.MARTIAN, Skin.NEON);
 
-    public GameColors(Color i, Color c) {
+    private Skin incomplete;
+    private Skin complete;
+
+    public GameColors(Skin i, Skin c) {
         incomplete = i;
         complete = c;
     }
 
-    Color getIncompleteColor() {
+    Skin getIncompleteColor() {
         return incomplete;
     }
 
-    Color getCompleteColor() {
+    Skin getCompleteColor() {
         return complete;
     }
 
-    public static int findDrawable(GameColors.Color color, Junction junction) {
-        switch (color) {
+    public static int findDrawable(Skin skin, Junction junction) {
+        switch (skin) {
             case BLUE:
                 return findBlueDrawable(junction);
             case ORANGE:

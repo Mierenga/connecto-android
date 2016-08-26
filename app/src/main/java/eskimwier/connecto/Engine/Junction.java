@@ -9,7 +9,7 @@ public class Junction {
 
     static Random random = new Random();
 
-    public enum Type {
+    public enum Type { // Keep in this order to not break other code
         BLANK,
         TERMINAL,
         TURN,
@@ -28,15 +28,30 @@ public class Junction {
     {
         switch (pos) {
             case INNER:
-                return (Type.values())[random.nextInt(6)];
+                return getRandomJuncType(6);
             case EDGE:
-                return (Type.values())[random.nextInt(5)];
+                return getRandomJuncType(5);
             case CORNER:
-                return (Type.values())[random.nextInt(3)];
+                return getRandomJuncType(3);
             default:
                 return Type.BLANK;
         }
     }
+
+    private static Type getRandomJuncType(int lessThan) {
+        // if we get a terminal in the inner puzzle, roll again to reduce the chances
+        //   terminals in inner puzzle
+        int t = random.nextInt(lessThan);
+        for (int i=0; i<1; i++){
+            if (t == Type.TERMINAL.ordinal() || t == Type.BLANK.ordinal()) {
+                t = random.nextInt(lessThan);
+            } else {
+                break;
+            }
+        }
+        return (Type.values())[t];
+    }
+
 
 
     public boolean north, east, south, west;
@@ -130,22 +145,7 @@ public class Junction {
     }
 
     public static Junction create(int i) {
-        switch (i) {
-            case 0:
-                return new Junction(Type.BLANK);
-            case 1:
-                return new Junction(Type.TERMINAL);
-            case 2:
-                return new Junction(Type.TURN);
-            case 3:
-                return new Junction(Type.FORK);
-            case 4:
-                return new Junction(Type.STRAIGHT);
-            case 5:
-                return new Junction(Type.CROSS);
-            default:
-                throw new IllegalArgumentException("Invalid Junction.Type. " + i + " is out of range");
-        }
+        return new Junction(Type.values()[i]);
     }
 
 

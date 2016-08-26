@@ -20,14 +20,14 @@ public class Autogen {
     private int rowNum;
     private int colNum;
     private int tileSize;
-    private GameColors.Color color;
+    private GameColors.Skin color;
     private PuzzleActivity activity;
 
-    public Autogen(DifficultyMode difficultyMode, GameColors.Color color, PuzzleActivity activity) {
+    public Autogen(DifficultyMode difficultyMode, GameColors.Skin color, PuzzleActivity activity) {
         this(difficultyMode.getWidth(), difficultyMode.getHeight(), color, activity);
     }
 
-    public Autogen(int w, int h, GameColors.Color color, PuzzleActivity activity) {
+    public Autogen(int w, int h, GameColors.Skin color, PuzzleActivity activity) {
 
         activity.gameTable.removeAllViews();
         activity.solved = false;

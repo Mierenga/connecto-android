@@ -1,6 +1,9 @@
 package eskimwier.connecto.Engine;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Path;
+import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -9,12 +12,19 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 
+import java.util.Random;
+
 import eskimwier.connecto.GamePlay.GameColors;
 
 /**
  * Created by eskimwier on 3/12/16.
  */
 public class SquareView extends ImageView {
+
+    private static GameColors.Skin skin = GameColors.Skin.BLACK_AND_WHITE;
+    private static int gridWidth = 0;
+    private static int gridHeight = 0;
+    private static SquareView[][] grid;
 
     public enum Compass {
         N,
@@ -23,22 +33,12 @@ public class SquareView extends ImageView {
         W
     }
 
-
-    private static GameColors.Color _color = GameColors.Color.BLACK_AND_WHITE;
-    private static int _gridWidth = 0;
-    private static int _gridHeight = 0;
-    private static SquareView[][] _grid;
-
-    private Junction _junction = new Junction();
-    private int _row = 0;
-    private int _col = 0;
-
     class Rotation {
-        private int _degrees = 0;
+        private int degrees = 0;
 
         public void rotate(final int deg, boolean updateModel) {
 
-            final int before = (_degrees);
+            final int before = degrees;
             final int after = (before + deg);
 
             post(new Runnable() {
@@ -54,13 +54,13 @@ public class SquareView extends ImageView {
             });
 
             if (updateModel) {
-                _degrees = reduceDegrees(after);
+                degrees = reduceDegrees(after);
             }
 
         }
 
         public int get() {
-            return _degrees;
+            return degrees;
         }
 
         private int reduceDegrees(int d) {
@@ -72,33 +72,37 @@ public class SquareView extends ImageView {
         }
 
     }
-    private Rotation _rotationDegrees = new Rotation();
 
-    public static void startNewGame(int rows, int cols, GameColors.Color color) {
-        _gridWidth = cols;
-        _gridHeight = rows;
-        _grid = new SquareView[_gridHeight][_gridWidth];
-        _color = color;
+    private Junction junction = new Junction();
+    private int row = 0;
+    private int col = 0;
+    private Rotation rotationDegrees = new Rotation();
+
+    public static void startNewGame(int rows, int cols, GameColors.Skin color) {
+        gridWidth = cols;
+        gridHeight = rows;
+        grid = new SquareView[gridHeight][gridWidth];
+        skin = color;
     }
 
-    public static void setGridColor(GameColors.Color color, boolean animate) {
+    public static void setGridColor(GameColors.Skin color, boolean animate) {
 
-        if (!animate && _color == color) return;
+        if (!animate && skin == color) return;
 
-        for (int i = 0; i < _gridHeight; i++) {
-            for (int j = 0; j < _gridWidth; j++) {
-                if (_grid[i][j] != null) {
-                    _grid[i][j].setToModelPosition();
-                    if (color != _color) {
-                        _grid[i][j].setImageResource(GameColors.findDrawable(color, _grid[i][j]._junction));
+        for (int i = 0; i < gridHeight; i++) {
+            for (int j = 0; j < gridWidth; j++) {
+                if (grid[i][j] != null) {
+                    grid[i][j].setToModelPosition();
+                    if (color != skin) {
+                        grid[i][j].setImageResource(GameColors.findDrawable(color, grid[i][j].junction));
                     }
                     if (animate) {
-                        _grid[i][j].shrinkGrow();
+                        grid[i][j].shrinkGrow();
                     }
                 }
             }
         }
-        _color = color;
+        skin = color;
     }
 
     public SquareView(Context context, Junction junction, int row, int col, int size) throws InstantiationException {
@@ -106,20 +110,57 @@ public class SquareView extends ImageView {
         checkGridSize();
 
         setJunction(junction);
-        _row = row;
-        _col = col;
-        _grid[row][col] = this;
+        this.row = row;
+        this.col = col;
+        grid[row][col] = this;
     }
 
     private void checkGridSize() throws  InstantiationException {
-        if (_gridHeight < 1 || _gridWidth < 1)
+        if (gridHeight < 1 || gridWidth < 1)
             throw new InstantiationException("Must use static method startNewGame()" +
                     "to set a positive grid size before instantiation of class members");
     }
 
     private void setJunction(Junction junction) {
-        _junction = junction;
-        setImageResource(GameColors.findDrawable(_color, _junction));
+        this.junction = junction;
+        setImageResource(GameColors.findDrawable(skin, this.junction));
+    }
+
+    private void jumble() {
+        final ImageView view = this;
+        post(new Runnable() {
+            @Override
+            public void run() {
+
+                final Path path1 = new Path();
+                path1.quadTo(view.getX(), view.getY(), view.getX(), view.getY());
+                ObjectAnimator.ofFloat(view, View.X, View.Y, path1).start();
+                /*
+                final Path path2 = new Path();
+                path2.quadTo(view.getX(), view.getY(), view.getX(), view.getY());
+                ObjectAnimator.ofFloat(view, View.X, View.Y, path2).start();
+                */
+            }
+        });
+
+    }
+
+    private void spin() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                Random random = new Random();
+                int direction = random.nextBoolean()?1:-1;
+                int rotations = random.nextInt(3) + 1;
+
+                Animation animation = new RotateAnimation(0, 360*rotations*direction, getWidth()/2, getHeight()/2);
+                animation.setInterpolator(new DecelerateInterpolator());
+                animation.setDuration(1000);
+                animation.setFillAfter(true);
+                animation.setFillEnabled(true);
+                startAnimation(animation);
+            }
+        });
     }
 
     private void shrinkGrow() {
@@ -127,18 +168,29 @@ public class SquareView extends ImageView {
             @Override
             public void run() {
 
-                Animation shrink = new ScaleAnimation(1f, 0.5f, 1f, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                shrink.setDuration(500);
+                int span = 500;
+                Random random = new Random();
+                int direction = random.nextBoolean()?1:-1;
+                int rotations = random.nextInt(2) + 1;
 
-                Animation grow = new ScaleAnimation(1f, 2f, 1f, 2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                grow.setDuration(500);
-                grow.setStartOffset(500);
+                Animation spin = new RotateAnimation(0, 360*rotations*direction, getWidth()/2, getHeight()/2);
+                spin.setDuration(span);
+                spin.setFillAfter(true);
+                spin.setFillEnabled(true);
+
+                Animation shrink = new ScaleAnimation(1f, 0.10f, 1f, 0.10f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                shrink.setDuration(span);
+
+                Animation grow = new ScaleAnimation(1f, 10f, 1f, 10f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                grow.setDuration(span);
+                grow.setStartOffset(span);
 
                 AnimationSet set = new AnimationSet(true);
                 set.setInterpolator(new AccelerateDecelerateInterpolator());
+                set.addAnimation(spin);
                 set.addAnimation(shrink);
                 set.addAnimation(grow);
-                set.setDuration(1000);
+                set.setDuration(span*2);
 
                 startAnimation(set);
             }
@@ -148,12 +200,12 @@ public class SquareView extends ImageView {
     public void setToModelPosition() {
         setPivotX(getWidth()/2);
         setPivotY(getHeight()/2);
-        setRotation(_rotationDegrees.get());
+        setRotation(rotationDegrees.get());
     }
 
     public void rotateClockwise(final int degrees) {
-        _junction.rotateJunctionClockwise(degrees);
-        _rotationDegrees.rotate(degrees, true);
+        junction.rotateJunctionClockwise(degrees);
+        rotationDegrees.rotate(degrees, true);
     }
 
     public boolean checkAllNeighbors() {
@@ -207,27 +259,27 @@ public class SquareView extends ImageView {
     }
 
     public boolean checkEasternNeighbor() {
-        if (this._junction.east == getEasternJunction()) {
+        if (this.junction.east == getEasternJunction()) {
             return true;
         }
         return false;
     }
     public boolean checkWesternNeighbor() {
-        if (this._junction.west == getWesternJunction()) {
+        if (this.junction.west == getWesternJunction()) {
             return true;
         }
         return false;
     }
 
     public boolean checkNorthernNeighbor() {
-        if (this._junction.north == getNorthernJunction()) {
+        if (this.junction.north == getNorthernJunction()) {
             return true;
         }
         return false;
     }
 
     public boolean checkSouthernNeighbor() {
-        if (this._junction.south == getSouthernJunction()) {
+        if (this.junction.south == getSouthernJunction()) {
             return true;
         }
         return false;
@@ -235,8 +287,8 @@ public class SquareView extends ImageView {
 
     private boolean getEasternJunction() {
         try {
-            int col = this._col + 1;
-            Boolean val = _grid[this._row][col]._junction.west;
+            int col = this.col + 1;
+            Boolean val = grid[this.row][col].junction.west;
             return val;
         } catch (IndexOutOfBoundsException e) {
             return false;
@@ -244,8 +296,8 @@ public class SquareView extends ImageView {
     }
     private boolean getWesternJunction() {
         try {
-            int col = this._col - 1;
-            Boolean val = _grid[this._row][col]._junction.east;
+            int col = this.col - 1;
+            Boolean val = grid[this.row][col].junction.east;
             return val;
         } catch (IndexOutOfBoundsException e) {
             return false;
@@ -253,8 +305,8 @@ public class SquareView extends ImageView {
     }
     private boolean getNorthernJunction() {
         try {
-            int row = this._row - 1;
-            Boolean val = _grid[row][this._col]._junction.south;
+            int row = this.row - 1;
+            Boolean val = grid[row][this.col].junction.south;
             return val;
         } catch (IndexOutOfBoundsException e) {
             return false;
@@ -262,8 +314,8 @@ public class SquareView extends ImageView {
     }
     private boolean getSouthernJunction() {
         try {
-            int row = this._row + 1;
-            Boolean val = _grid[row][this._col]._junction.north;
+            int row = this.row + 1;
+            Boolean val = grid[row][this.col].junction.north;
             return val;
         } catch (IndexOutOfBoundsException e) {
             return false;

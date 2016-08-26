@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Game: "
+            android:text="GAME: "
             android:textColor="#FFFFFF"
             android:layout_toStartOf="@+id/game_score"
             />
@@ -65,7 +65,7 @@
          <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Session: "
+            android:text="ALL TIME: "
             android:textColor="#FFFFFF"
             android:layout_toStartOf="@+id/total_score"
              android:layout_below="@+id/game_score"
