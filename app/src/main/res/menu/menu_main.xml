@@ -45,7 +45,6 @@
             app:showAsAction="never"
             >
             <menu>
-
                 <item
                     android:id="@+id/spectro_color"
                     android:icon="@drawable/cross_spectro"
@@ -57,6 +56,24 @@
                     android:icon="@drawable/cross_martian"
                     android:orderInCategory="6"
                     android:title="Martian"
+                    app:showAsAction="always" />
+                <item
+                    android:id="@+id/squig_color"
+                    android:icon="@drawable/cross_squig"
+                    android:orderInCategory="6"
+                    android:title="Squig"
+                    app:showAsAction="always" />
+                <item
+                    android:id="@+id/orange_color"
+                    android:icon="@drawable/cross_orange"
+                    android:orderInCategory="6"
+                    android:title="Heat"
+                    app:showAsAction="always" />
+                <item
+                    android:id="@+id/blue_color"
+                    android:icon="@drawable/cross_blue"
+                    android:orderInCategory="6"
+                    android:title="Flagship"
                     app:showAsAction="always" />
             </menu>
         </item>

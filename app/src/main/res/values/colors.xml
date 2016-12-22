@@ -14,5 +14,7 @@
     <color name="martian_light">#00b522</color>
     <color name="spectro_connecto">#706b2b</color>
     <color name="dark_gray">#333333</color>
+    <color name="flagship_red">#5A2349</color>
+    <color name="heat_orange">#DD9C58</color>
 
 </resources>

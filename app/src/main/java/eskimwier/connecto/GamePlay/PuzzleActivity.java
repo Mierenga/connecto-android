@@ -6,6 +6,7 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -31,6 +32,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import eskimwier.connecto.Campaign.ScoreKeeper;
@@ -43,6 +49,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     View gameFrame;
     TableLayout gameTable;
     View winText;
+    TextView complimentText;
     TextView gameScoreText;
     TextView totalScoreText;
 
@@ -64,6 +71,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         background = (RelativeLayout) findViewById(R.id.background);
         gameFrame = findViewById(R.id.game_frame);
         winText = findViewById(R.id.win_text);
+        complimentText = (TextView) findViewById(R.id.compliment_text);
         gameTable = (TableLayout) findViewById(R.id.game_table);
         gameScoreText = (TextView) findViewById(R.id.game_score);
         totalScoreText = (TextView) findViewById(R.id.total_score);
@@ -119,6 +127,21 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
                 setGameColor(gameColors.getCompleteColor(), false);
                 setupAutogenGame();
                 break;
+            case R.id.squig_color:
+                gameColors = GameColors.Squig;
+                setGameColor(gameColors.getCompleteColor(), false);
+                setupAutogenGame();
+                break;
+            case R.id.orange_color:
+                gameColors = GameColors.Orange;
+                setGameColor(gameColors.getCompleteColor(), false);
+                setupAutogenGame();
+                break;
+            case R.id.blue_color:
+                gameColors = GameColors.Blue;
+                setGameColor(gameColors.getCompleteColor(), false);
+                setupAutogenGame();
+                break;
             default:
                 super.onOptionsItemSelected(item);
 
@@ -155,6 +178,7 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void setupAutogenGame() {
+        complimentText.setVisibility(View.INVISIBLE);
         gameScoreText.setText(Integer.toString(0));
         setGameColor(gameColors.getIncompleteColor(), false);
         startGameAnimation();
@@ -214,10 +238,10 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         int colorId;
         switch (skin) {
             case ORANGE:
-                colorId = R.color.orange;
+                colorId = R.color.heat_orange;
                 break;
             case BLUE:
-                colorId = R.color.blue;
+                colorId = R.color.flagship_red;
                 break;
             case NEWS:
                 colorId = R.color.black;
@@ -287,6 +311,26 @@ public class PuzzleActivity extends AppCompatActivity implements View.OnClickLis
         winText.post(new Runnable() {
             @Override
             public void run() {
+
+                ArrayList<String> compliments = new ArrayList<String>();
+                compliments.add("Good Job, Milly!");
+                compliments.add("You're so smart!");
+                compliments.add("Wow!");
+                compliments.add("Awesome!");
+                compliments.add("You Rock!");
+                compliments.add("Lightning fast!");
+                compliments.add("Emily Rocks!");
+                compliments.add("Super");
+                compliments.add("Elmer Fudd!!!");
+                Random r = new Random();
+
+                //Animation textAnimGrow = new ScaleAnimation(0.5f, 5f, 0.5f, 5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                Animation textAnim= new ScaleAnimation(0.1f, 1f, 0.1f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                textAnim.setDuration(1000);
+                complimentText.setText(compliments.get(r.nextInt(compliments.size())));
+                complimentText.bringToFront();
+                complimentText.setVisibility(View.VISIBLE);
+                complimentText.startAnimation(textAnim);
 
                 gameTable.setVisibility(View.INVISIBLE);
                 gameScoreText.setText(Integer.toString(scoreKeeper.puzzleCompleted()));

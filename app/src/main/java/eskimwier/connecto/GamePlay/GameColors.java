@@ -19,11 +19,15 @@ public class GameColors {
         MARTIAN,
         NEON,
         NEWS,
-        SPECTRO
+        SPECTRO,
+        SQUIG,
     }
 
     public static final GameColors Spectro = new GameColors(Skin.SPECTRO, Skin.SPECTRO);
     public static final GameColors Martian = new GameColors(Skin.MARTIAN, Skin.NEON);
+    public static final GameColors Squig = new GameColors(Skin.SQUIG, Skin.SQUIG);
+    public static final GameColors Orange = new GameColors(Skin.ORANGE, Skin.ORANGE);
+    public static final GameColors Blue = new GameColors(Skin.BLUE, Skin.BLUE);
 
     private Skin incomplete;
     private Skin complete;
@@ -57,10 +61,33 @@ public class GameColors {
                 return findNewsDrawable(junction);
             case SPECTRO:
                 return findSpectroDrawable(junction);
+            case SQUIG:
+                return findSquigDrawable(junction);
             default:
                 return findBlackAndWhiteDrawable(junction);
         }
 
+    }
+
+    private static int findSquigDrawable(Junction j)
+    {
+        switch (j.type)
+        {
+            case BLANK:
+                return R.drawable.blank_squig;
+            case TERMINAL:
+                return R.drawable.term_squig;
+            case STRAIGHT:
+                return R.drawable.strat_squig;
+            case TURN:
+                return R.drawable.turn_squig;
+            case FORK:
+                return R.drawable.fork_squig;
+            case CROSS:
+                return R.drawable.cross_squig;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     private static int findSpectroDrawable(Junction j)
@@ -91,9 +118,9 @@ public class GameColors {
             case BLANK:
                 return R.drawable.blank_blue;
             case TERMINAL:
-                return R.drawable.terminal_blue;
+                return R.drawable.term_blue;
             case STRAIGHT:
-                return R.drawable.straight_blue;
+                return R.drawable.strat_blue;
             case TURN:
                 return R.drawable.turn_blue;
             case FORK:
@@ -131,9 +158,9 @@ public class GameColors {
             case BLANK:
                 return R.drawable.blank_orange;
             case TERMINAL:
-                return R.drawable.terminal_orange;
+                return R.drawable.term_orange;
             case STRAIGHT:
-                return R.drawable.straight_orange;
+                return R.drawable.strat_orange;
             case TURN:
                 return R.drawable.turn_orange;
             case FORK:
